@@ -3,7 +3,7 @@ from PyQt5 import *
 from PyQt5.uic import *
 from pyqtgraph import QtGui
 from PyQt5 import QtCore, QtGui, QtWidgets
-#from PyQt5.QtCore import QDate, QTime, QDateTime, Qt
+# from PyQt5.QtCore import QDate, QTime, QDateTime, Qt
 import funciones as f
 
 
@@ -19,8 +19,17 @@ class DescargaDatos(QtGui.QDialog):
 
         fecha = QtCore.QDate.currentDate()
         self.ui.fecha_termino_edit.setDate(fecha)
+        self.ui.fecha_inicio_edit.setDate(fecha)
+
         self.datos_Button.clicked.connect(self.enviar_datos)
         self.ui.magnitud_edit.setText("5")
+
+    def print_info(self):
+        # print(self.ui.descargar_listWidget.currentItem().text())
+        numero = self.ui.descargar_listWidget.row(
+            self.ui.descargar_listWidget.currentItem())
+        QtGui.QMessageBox.information(self, " ","Datos descargados exitosamente")
+        # f.descargar_datos(self.datos,numero)
 
     def enviar_datos(self):
 
@@ -32,11 +41,20 @@ class DescargaDatos(QtGui.QDialog):
 
         magnitud = int(self.ui.magnitud_edit.text())
 
-        self.ui.evento_comboBox.addItem("prueba")
-        datos = f.pedir_datos(fecha_inicio, fecha_termino, magnitud)
-        print(datos)
-        for element in datos:
-            self.ui.evento_comboBox.addItem(element)
+        # self.ui.evento_comboBox.addItem("prueba")
+        self.datos = f.pedir_datos(fecha_inicio, fecha_termino, magnitud)
+        print(self.datos)
+        # self.ui.evento_comboBox.addItem(element)
+        for element in self.datos:
+            string = element["event_descriptions"][0].text + \
+                " " + str(element.preferred_magnitude()["mag"])
+            self.ui.descargar_listWidget.addItem(string)
+
+            #.currentRow()
+        self.ui.descargar_listWidget.currentItemChanged.connect(
+            self.print_info)
+        #clickeado = self.ui.descargar_listWidget.itemClicked.connect(self.ui.descargar_listWidget.listClicked)
+        # print(clickeado)
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -54,10 +72,10 @@ class MainWindow(QtGui.QMainWindow):
         print(descarga_datos_windows.magnitud_edit.text())
 
     def openFileNameDialog(self):
-        file = str(QtGui.QFileDialog.getExistingDirectory(self, "Seleccione una carpeta"))
+        file = str(QtGui.QFileDialog.getExistingDirectory(
+            self, "Seleccione una carpeta"))
         if file:
             print(file)
-
 
 
 app = QtGui.QApplication(sys.argv)

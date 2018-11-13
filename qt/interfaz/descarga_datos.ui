@@ -6,23 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>567</width>
+    <height>456</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Descarga Datos</string>
   </property>
-  <widget class="QComboBox" name="evento_comboBox">
-   <property name="geometry">
-    <rect>
-     <x>120</x>
-     <y>200</y>
-     <width>241</width>
-     <height>31</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QLabel" name="evento_label">
    <property name="geometry">
     <rect>
@@ -91,7 +81,7 @@
   <widget class="QLineEdit" name="magnitud_edit">
    <property name="geometry">
     <rect>
-     <x>130</x>
+     <x>140</x>
      <y>170</y>
      <width>113</width>
      <height>20</height>
@@ -101,8 +91,8 @@
   <widget class="QPushButton" name="descarga_button">
    <property name="geometry">
     <rect>
-     <x>180</x>
-     <y>250</y>
+     <x>410</x>
+     <y>270</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -127,8 +117,8 @@
   <widget class="QDateEdit" name="fecha_inicio_edit">
    <property name="geometry">
     <rect>
-     <x>130</x>
-     <y>80</y>
+     <x>140</x>
+     <y>90</y>
      <width>110</width>
      <height>22</height>
     </rect>
@@ -141,6 +131,16 @@
      <y>130</y>
      <width>110</width>
      <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QListWidget" name="descargar_listWidget">
+   <property name="geometry">
+    <rect>
+     <x>120</x>
+     <y>210</y>
+     <width>256</width>
+     <height>192</height>
     </rect>
    </property>
   </widget>
