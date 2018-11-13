@@ -74,7 +74,7 @@ def descargar_datos(cat, numero):
 def cargar_estations(directorio):
         # cargamos las carpetas asi, pero luego en la interfaz sera automatico
     ruta_w = directorio
-    ruta_w = ruta_w.replace("/", "\\") + "\\*.mseed"
+    ruta_w = ruta_w + "/*.mseed"
     print(ruta_w)
     st = read(ruta_w)
     return st
@@ -84,7 +84,7 @@ def remover_respuesta(directorio,st):
     XML = os.listdir(ruta_s)
     XML = sorted(XML)
     c = 0
-# un filtro para frecuencias muy altas y bajas
+    # un filtro para frecuencias muy altas y bajas
     pre_filt = [0.001, 0.005, 10, 20]
     dist = []
     az = []
@@ -93,4 +93,14 @@ def remover_respuesta(directorio,st):
     great_circle = []
     arrivals = []
     taup = TauPyModel()
+    ruta_w = ruta_w.replace("waveforms","info.txt")
+    archivo = open(ruta_w)
+    array =[]
+    for element in archivo:
+        array.append(element.replace("\n",""))
+    lat_e = float(array[0])
+    lon_e = float(array[1])
+    time = UTCDateTime(array[2])
+
+def filto_perido_P(directorio,st):
     print("asdasd")
