@@ -1,0 +1,27 @@
+-18.1125
+-178.1536
+2018-08-19T00:19:40.670000Z
+for resp in XML:
+    # para cachar donde pueda cagar el script
+    print(resp)  
+    # leemos la info del instrumento
+    inv = read_inventory(ruta_s +"/"+ str(resp))
+    
+    datachannel = inv.get_contents()
+    channel = datachannel['channels']  # extraer el canal correspondiente
+    datacoor = inv.get_coordinates(channel[0], time)
+    #print(inv.get_contents().items())
+    
+    print(inv.get_response(channel[0], time).__dict__['response_stages'][4])
+    [disti, azi, bazi] = calc_vincenty_inverse(lat_e, lon_e, datacoor['latitude'],datacoor['longitude']) 
+    greatcirc = locations2degrees(lat_e, lon_e, datacoor['latitude'],datacoor['longitude']) 
+    
+    dist.append(disti)
+    az.append(azi)
+    baz.append(bazi)
+    canal.append(channel[0])
+    
+    #if len(inv.responses) < 1:
+    st[c].remove_response(inventory=inv, pre_filt=pre_filt, output="VEL", plot=False)
+    st[c].filter('lowpass', freq=0.2, corners=2, zerophase=True)
+    c += 1

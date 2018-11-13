@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<FDSNStationXML xmlns="http://www.fdsn.org/xml/station/1" schemaVersion="1.0" xsi:schemaLocation="http://www.fdsn.org/xml/station/1 http://www.fdsn.org/xml/station/fdsn-station-1.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iris="http://www.fdsn.org/xml/station/1/iris">
+ <Source>IRIS-DMC</Source>
+ <Sender>IRIS-DMC</Sender>
+ <Module>IRIS WEB SERVICE: fdsnws-station | version: 1.1.35</Module>
+ <ModuleURI>http://service.iris.edu/fdsnws/station/1/query</ModuleURI>
+ <Created>2018-11-08T16:31:18</Created>
+ <Network code="G" startDate="1982-01-01T00:00:00" endDate="2500-12-31T23:59:59" restrictedStatus="open">
+  <Description>GEOSCOPE</Description>
+  <TotalNumberStations>52</TotalNumberStations>
+  <SelectedNumberStations>1</SelectedNumberStations>
+  <Station code="AIS" startDate="1993-12-25T00:00:00" endDate="2599-12-31T23:59:59" restrictedStatus="open" iris:alternateNetworkCodes="_FDSN,_FDSN-ALL,_REALTIME,.UNRESTRICTED">
+   <Comment>
+    <Value>Sensors responses contain nominal values.</Value>
+    <BeginEffectiveTime>1982-01-01T00:00:00</BeginEffectiveTime>
+    <EndEffectiveTime>2599-12-31T23:59:59</EndEffectiveTime>
+   </Comment>
+   <Comment>
+    <Value>Error on sensors poles may reach 2 percent.</Value>
+    <BeginEffectiveTime>1982-01-01T00:00:00</BeginEffectiveTime>
+    <EndEffectiveTime>2599-12-31T23:59:59</EndEffectiveTime>
+   </Comment>
+   <Comment>
+    <Value>-</Value>
+    <BeginEffectiveTime>1999-01-07T00:00:00</BeginEffectiveTime>
+    <EndEffectiveTime>2286-11-20T17:46:39</EndEffectiveTime>
+   </Comment>
+   <Comment>
+    <Value>Station has occasional gaps due to record dropouts.</Value>
+    <BeginEffectiveTime>2008-04-02T04:43:54</BeginEffectiveTime>
+    <EndEffectiveTime>2008-07-01T20:59:00</EndEffectiveTime>
+   </Comment>
+   <Comment>
+    <Value>Occasional spiking on all channels.</Value>
+    <BeginEffectiveTime>2008-03-28T13:00:00</BeginEffectiveTime>
+    <EndEffectiveTime>2008-03-31T14:50:00</EndEffectiveTime>
+   </Comment>
+   <Comment>
+    <Value>Occasional locid 00 data lost</Value>
+    <BeginEffectiveTime>2010-12-14T05:18:00</BeginEffectiveTime>
+    <EndEffectiveTime>2010-12-14T05:31:00</EndEffectiveTime>
+   </Comment>
+   <Comment>
+    <Value>The locid 10 data lost due to network problems</Value>
+    <BeginEffectiveTime>2011-10-24T05:50:00</BeginEffectiveTime>
+    <EndEffectiveTime>2011-11-12T21:35:00</EndEffectiveTime>
+   </Comment>
+   <Comment>
+    <Value>The locid 10 data lost due to network problems</Value>
+    <BeginEffectiveTime>2011-12-19T00:11:00</BeginEffectiveTime>
+    <EndEffectiveTime>2012-01-04T04:33:00</EndEffectiveTime>
+   </Comment>
+   <Comment>
+    <Value>The locid 10 data lost due to network problems</Value>
+    <BeginEffectiveTime>2012-01-25T03:22:00</BeginEffectiveTime>
+    <EndEffectiveTime>2012-01-28T20:05:00</EndEffectiveTime>
+   </Comment>
+   <Comment>
+    <Value>Many locid 10 data lost</Value>
+    <BeginEffectiveTime>2012-06-20T16:40:00</BeginEffectiveTime>
+    <EndEffectiveTime>2012-06-24T00:00:00</EndEffectiveTime>
+   </Comment>
+   <Comment>
+    <Value>Sensors responses contain nominal values.</Value>
+    <BeginEffectiveTime>1993-12-25T00:00:00</BeginEffectiveTime>
+    <EndEffectiveTime>2599-12-31T23:59:59</EndEffectiveTime>
+   </Comment>
+   <Comment>
+    <Value>Error on sensors poles may reach 2 percent.</Value>
+    <BeginEffectiveTime>1993-12-25T00:00:00</BeginEffectiveTime>
+    <EndEffectiveTime>2599-12-31T23:59:59</EndEffectiveTime>
+   </Comment>
+   <Comment>
+    <Value>Occasional spikes in data</Value>
+    <BeginEffectiveTime>2008-03-28T13:00:00</BeginEffectiveTime>
+    <EndEffectiveTime>2008-03-31T14:50:00</EndEffectiveTime>
+   </Comment>
+   <Comment>
+    <Value>Maintenance in progress.</Value>
+    <BeginEffectiveTime>2017-04-11T04:00:00</BeginEffectiveTime>
+    <EndEffectiveTime>2017-04-13T12:00:00</EndEffectiveTime>
+   </Comment>
+   <Latitude>-37.79635</Latitude>
+   <Longitude>77.569186</Longitude>
+   <Elevation>35.900001525878906</Elevation>
+   <Site>
+    <Name>Nouvelle-Amsterdam - TAAF, France</Name>
+   </Site>
+   <CreationDate>1993-12-25T00:00:00</CreationDate>
+   <TotalNumberChannels>42</TotalNumberChannels>
+   <SelectedNumberChannels>1</SelectedNumberChannels>
+   <Channel code="BHZ" endDate="2599-12-31T23:59:59" locationCode="00" restrictedStatus="open" startDate="2013-04-02T13:18:00">
+    <Comment>
+     <Value>-</Value>
+     <BeginEffectiveTime>1999-01-07T00:00:00</BeginEffectiveTime>
+     <EndEffectiveTime>2286-11-20T17:46:39</EndEffectiveTime>
+    </Comment>
+    <Comment>
+     <Value>-</Value>
+     <BeginEffectiveTime>2006-11-28T00:00:00</BeginEffectiveTime>
+     <EndEffectiveTime>2286-11-20T17:46:39</EndEffectiveTime>
+    </Comment>
+    <Comment>
+     <Value>Channel is down</Value>
+     <BeginEffectiveTime>2013-09-18T10:37:39</BeginEffectiveTime>
+     <EndEffectiveTime>2013-11-20T13:13:58</EndEffectiveTime>
+    </Comment>
+    <Latitude>-37.796349</Latitude>
+    <Longitude>77.569183</Longitude>
+    <Elevation>35.9</Elevation>
+    <Depth>3</Depth>
+    <Azimuth>0</Azimuth>
+    <Dip>-90</Dip>
+    <Type>CONTINUOUS</Type>
+    <Type>GEOPHYSICAL</Type>
+    <SampleRate>2E01</SampleRate>
+    <ClockDrift>5E-06</ClockDrift>
+    <CalibrationUnits>
+     <Name>M/S</Name>
+     <Description>Velocity in Meters Per Second</Description>
+    </CalibrationUnits>
+    <Sensor>
+     <Description>STRECKEISEN STS2</Description>
+    </Sensor>
+    <Response>
+     <InstrumentSensitivity>
+      <Value>2.51661E9</Value>
+      <Frequency>2E-2</Frequency>
+      <InputUnits>
+       <Name>M/S</Name>
+       <Description>Velocity in Meters Per Second</Description>
+      </InputUnits>
+      <OutputUnits>
+       <Name>COUNTS</Name>
+       <Description>DIGITAL UNIT in Counts</Description>
+      </OutputUnits>
+     </InstrumentSensitivity>
+     <Stage number="1">
+      <PolesZeros>
+       <InputUnits>
+        <Name>M/S</Name>
+        <Description>Velocity in Meters Per Second</Description>
+       </InputUnits>
+       <OutputUnits>
+        <Name>V</Name>
+        <Description>Volts</Description>
+       </OutputUnits>
+       <PzTransferFunctionType>LAPLACE (RADIANS/SECOND)</PzTransferFunctionType>
+       <NormalizationFactor>1.01496</NormalizationFactor>
+       <NormalizationFrequency>0.0200000</NormalizationFrequency>
+       <Zero number="0">
+        <Real minusError="0.00000" plusError="0.00000">0.00000</Real>
+        <Imaginary minusError="0.00000" plusError="0.00000">0.00000</Imaginary>
+       </Zero>
+       <Zero number="1">
+        <Real minusError="0.00000" plusError="0.00000">0.00000</Real>
+        <Imaginary minusError="0.00000" plusError="0.00000">0.00000</Imaginary>
+       </Zero>
+       <Pole number="0">
+        <Real minusError="0.00000" plusError="0.00000">-0.0370239</Real>
+        <Imaginary minusError="0.00000" plusError="0.00000">-0.0370239</Imaginary>
+       </Pole>
+       <Pole number="1">
+        <Real minusError="0.00000" plusError="0.00000">-0.0370239</Real>
+        <Imaginary minusError="0.00000" plusError="0.00000">0.0370239</Imaginary>
+       </Pole>
+      </PolesZeros>
+      <StageGain>
+       <Value>1500.0</Value>
+       <Frequency>0.02</Frequency>
+      </StageGain>
+     </Stage>
+     <Stage number="2">
+      <Coefficients>
+       <InputUnits>
+        <Name>V</Name>
+        <Description>Volts</Description>
+       </InputUnits>
+       <OutputUnits>
+        <Name>COUNTS</Name>
+        <Description>DIGITAL UNIT in Counts</Description>
+       </OutputUnits>
+       <CfTransferFunctionType>DIGITAL</CfTransferFunctionType>
+      </Coefficients>
+      <Decimation>
+       <InputSampleRate>20.0</InputSampleRate>
+       <Factor>1</Factor>
+       <Offset>0</Offset>
+       <Delay>0.0</Delay>
+       <Correction>0.0</Correction>
+      </Decimation>
+      <StageGain>
+       <Value>1677720.0</Value>
+       <Frequency>0.0</Frequency>
+      </StageGain>
+     </Stage>
+     <Stage number="3">
+      <FIR name="">
+       <InputUnits>
+        <Name>COUNTS</Name>
+        <Description>DIGITAL UNIT in Counts</Description>
+       </InputUnits>
+       <OutputUnits>
+        <Name>COUNTS</Name>
+        <Description>DIGITAL UNIT in Counts</Description>
+       </OutputUnits>
+       <Symmetry>NONE</Symmetry>
+       <NumeratorCoefficient i="0">0.000000000000000037716220</NumeratorCoefficient>
+       <NumeratorCoefficient i="1">-0.00000000016971263</NumeratorCoefficient>
+       <NumeratorCoefficient i="2">0.000000017183769</NumeratorCoefficient>
+       <NumeratorCoefficient i="3">-0.00000024396441</NumeratorCoefficient>
+       <NumeratorCoefficient i="4">0.00000025825193</NumeratorCoefficient>
+       <NumeratorCoefficient i="5">0.0000015608987</NumeratorCoefficient>
+       <NumeratorCoefficient i="6">-0.0000018170374</NumeratorCoefficient>
+       <NumeratorCoefficient i="7">0.0000024137647</NumeratorCoefficient>
+       <NumeratorCoefficient i="8">-0.0000037049074</NumeratorCoefficient>
+       <NumeratorCoefficient i="9">0.00000087327567</NumeratorCoefficient>
+       <NumeratorCoefficient i="10">0.000036423511</NumeratorCoefficient>
+       <NumeratorCoefficient i="11">-0.00024683311</NumeratorCoefficient>
+       <NumeratorCoefficient i="12">-0.00039359882</NumeratorCoefficient>
+       <NumeratorCoefficient i="13">0.00065596116</NumeratorCoefficient>
+       <NumeratorCoefficient i="14">-0.0010202520</NumeratorCoefficient>
+       <NumeratorCoefficient i="15">0.0012305107</NumeratorCoefficient>
+       <NumeratorCoefficient i="16">-0.0010604299</NumeratorCoefficient>
+       <NumeratorCoefficient i="17">0.00028861329</NumeratorCoefficient>
+       <NumeratorCoefficient i="18">0.0012268313</NumeratorCoefficient>
+       <NumeratorCoefficient i="19">-0.0034585489</NumeratorCoefficient>
+       <NumeratorCoefficient i="20">0.0061462784</NumeratorCoefficient>
+       <NumeratorCoefficient i="21">-0.0087582095</NumeratorCoefficient>
+       <NumeratorCoefficient i="22">0.010517854</NumeratorCoefficient>
+       <NumeratorCoefficient i="23">-0.010495466</NumeratorCoefficient>
+       <NumeratorCoefficient i="24">0.0077688228</NumeratorCoefficient>
+       <NumeratorCoefficient i="25">-0.0016282018</NumeratorCoefficient>
+       <NumeratorCoefficient i="26">-0.0076409597</NumeratorCoefficient>
+       <NumeratorCoefficient i="27">0.019894414</NumeratorCoefficient>
+       <NumeratorCoefficient i="28">-0.038761941</NumeratorCoefficient>
+       <NumeratorCoefficient i="29">0.055104411</NumeratorCoefficient>
+       <NumeratorCoefficient i="30">-0.071369635</NumeratorCoefficient>
+       <NumeratorCoefficient i="31">0.083303570</NumeratorCoefficient>
+       <NumeratorCoefficient i="32">-0.086719458</NumeratorCoefficient>
+       <NumeratorCoefficient i="33">0.062876883</NumeratorCoefficient>
+       <NumeratorCoefficient i="34">0.88995076</NumeratorCoefficient>
+       <NumeratorCoefficient i="35">0.16700170</NumeratorCoefficient>
+       <NumeratorCoefficient i="36">-0.12868654</NumeratorCoefficient>
+       <NumeratorCoefficient i="37">0.10072625</NumeratorCoefficient>
+       <NumeratorCoefficient i="38">-0.075500737</NumeratorCoefficient>
+       <NumeratorCoefficient i="39">0.051595197</NumeratorCoefficient>
+       <NumeratorCoefficient i="40">-0.031114641</NumeratorCoefficient>
+       <NumeratorCoefficient i="41">0.011006032</NumeratorCoefficient>
+       <NumeratorCoefficient i="42">0.00047617321</NumeratorCoefficient>
+       <NumeratorCoefficient i="43">-0.0082388155</NumeratorCoefficient>
+       <NumeratorCoefficient i="44">0.012421118</NumeratorCoefficient>
+       <NumeratorCoefficient i="45">-0.013133279</NumeratorCoefficient>
+       <NumeratorCoefficient i="46">0.011441660</NumeratorCoefficient>
+       <NumeratorCoefficient i="47">-0.0084523488</NumeratorCoefficient>
+       <NumeratorCoefficient i="48">0.0051364373</NumeratorCoefficient>
+       <NumeratorCoefficient i="49">-0.0022056665</NumeratorCoefficient>
+       <NumeratorCoefficient i="50">0.000064757742</NumeratorCoefficient>
+       <NumeratorCoefficient i="51">0.0011723495</NumeratorCoefficient>
+       <NumeratorCoefficient i="52">-0.0016096229</NumeratorCoefficient>
+       <NumeratorCoefficient i="53">0.0014835919</NumeratorCoefficient>
+       <NumeratorCoefficient i="54">-0.0010652902</NumeratorCoefficient>
+       <NumeratorCoefficient i="55">0.00059053200</NumeratorCoefficient>
+       <NumeratorCoefficient i="56">-0.00027357644</NumeratorCoefficient>
+       <NumeratorCoefficient i="57">-0.00032148402</NumeratorCoefficient>
+       <NumeratorCoefficient i="58">0.000039851542</NumeratorCoefficient>
+       <NumeratorCoefficient i="59">0.0000010833027</NumeratorCoefficient>
+       <NumeratorCoefficient i="60">-0.0000046429730</NumeratorCoefficient>
+       <NumeratorCoefficient i="61">0.0000028844792</NumeratorCoefficient>
+       <NumeratorCoefficient i="62">-0.0000016208104</NumeratorCoefficient>
+       <NumeratorCoefficient i="63">0.0000013161658</NumeratorCoefficient>
+       <NumeratorCoefficient i="64">0.00000047251905</NumeratorCoefficient>
+       <NumeratorCoefficient i="65">-0.00000032963658</NumeratorCoefficient>
+       <NumeratorCoefficient i="66">0.000000027142341</NumeratorCoefficient>
+      </FIR>
+      <Decimation>
+       <InputSampleRate>20.0</InputSampleRate>
+       <Factor>1</Factor>
+       <Offset>0</Offset>
+       <Delay>1.7</Delay>
+       <Correction>1.7</Correction>
+      </Decimation>
+      <StageGain>
+       <Value>1.0</Value>
+       <Frequency>0.0</Frequency>
+      </StageGain>
+     </Stage>
+    </Response>
+   </Channel>
+  </Station>
+ </Network>
+</FDSNStationXML>
