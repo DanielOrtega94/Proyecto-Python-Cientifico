@@ -4,7 +4,7 @@
 for resp in XML:
     # para cachar donde pueda cagar el script
     print(resp)  
-    # leemos la info del instrumento
+    # leemos la info del instrumentow
     inv = read_inventory(ruta_s +"/"+ str(resp))
     
     datachannel = inv.get_contents()

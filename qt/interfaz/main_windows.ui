@@ -17,10 +17,10 @@
    <widget class="QWidget" name="verticalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>140</x>
-      <y>90</y>
+      <x>440</x>
+      <y>30</y>
       <width>160</width>
-      <height>80</height>
+      <height>151</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -32,13 +32,59 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="cargar_Button">
+      <widget class="QPushButton" name="cargar_estaciones_Button">
        <property name="text">
-        <string>Cargar Datos</string>
+        <string>Cargar Estaciones</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cargar_waveforms_Button">
+       <property name="text">
+        <string>Cargar Waveforms</string>
        </property>
       </widget>
      </item>
     </layout>
+   </widget>
+   <widget class="QWidget" name="verticalLayoutWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>240</y>
+      <width>160</width>
+      <height>80</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <widget class="QPushButton" name="remover_respuesta_Button">
+       <property name="text">
+        <string>Remover Respuesta</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="filtrar_ondap_Button">
+       <property name="text">
+        <string>Filtrar para Onda P</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QPushButton" name="graficar_Button">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>390</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Graficar</string>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

@@ -63,7 +63,10 @@ class MainWindow(QtGui.QMainWindow):
         super(MainWindow, self).__init__()
         self.ui = loadUi('interfaz/main_windows.ui', self)
         self.descargar_Button.clicked.connect(self.executeDescargaDatos)
-        self.cargar_Button.clicked.connect(self.openFileNameDialog)
+        self.cargar_estaciones_Button.clicked.connect(self.path_estaciones)
+        self.cargar_waveforms_Button.clicked.connect(self.path_waveforms)
+        self.remover_respuesta_Button.clicked.connect(self.remover_respuesta)
+        self.filtrar_ondap_Button.clicked.connect(self.remover_respuesta)
 
     def executeDescargaDatos(self):
         descarga_datos_windows = DescargaDatos()
@@ -71,11 +74,21 @@ class MainWindow(QtGui.QMainWindow):
         # pasar datos de un dialog a otro
         print(descarga_datos_windows.magnitud_edit.text())
 
-    def openFileNameDialog(self):
-        file = str(QtGui.QFileDialog.getExistingDirectory(
+    def path_estaciones(self):
+        self.file_estaciones = str(QtGui.QFileDialog.getExistingDirectory(
             self, "Seleccione una carpeta"))
-        if file:
-            print(file)
+        if self.file_estaciones:
+            print(self.file_estaciones)
+            self.estaciones = f.cargar_estations(self.file_estaciones)
+
+    def path_waveforms(self):
+        self.file_waveforms = str(QtGui.QFileDialog.getExistingDirectory(
+            self, "Seleccione una carpeta"))
+        if self.file_waveforms:
+            print(self.file_estaciones)
+
+    def remover_respuesta(self):
+    	print("asdasd")
 
 
 app = QtGui.QApplication(sys.argv)
