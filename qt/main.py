@@ -50,14 +50,14 @@ class MainWindow(QtGui.QMainWindow):
     def executeDescargaDatos(self):
         descarga_datos_windows = DescargaDatos()
         descarga_datos_windows.exec_()
+        # pasar datos de un dialog a otro
+        print(descarga_datos_windows.magnitud_edit.text())
 
     def openFileNameDialog(self):
-        options = QtGui.QFileDialog.Options()
-        options |= QtGui.QFileDialog.DontUseNativeDialog
-        fileName, _ = QtGui.QFileDialog.getOpenFileName(
-            self, "QFileDialog.getOpenFileName()", "", "All Files (*);;Python Files (*.py)", options=options)
-        if fileName:
-            print(fileName)
+        file = str(QtGui.QFileDialog.getExistingDirectory(self, "Seleccione una carpeta"))
+        if file:
+            print(file)
+
 
 
 app = QtGui.QApplication(sys.argv)
