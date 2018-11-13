@@ -74,11 +74,23 @@ def descargar_datos(cat, numero):
 def cargar_estations(directorio):
         # cargamos las carpetas asi, pero luego en la interfaz sera automatico
     ruta_w = directorio
-    ruta_w = ruta_w.replace("/", "\\")
+    ruta_w = ruta_w.replace("/", "\\") + "\\*.mseed"
     print(ruta_w)
-    st = read(ruta_w + "\\*.mseed")
+    st = read(ruta_w)
     return st
 
 
-def remover_respuesta(directorio):
+def remover_respuesta(directorio,st):
+    XML = os.listdir(ruta_s)
+    XML = sorted(XML)
+    c = 0
+# un filtro para frecuencias muy altas y bajas
+    pre_filt = [0.001, 0.005, 10, 20]
+    dist = []
+    az = []
+    baz = []
+    canal = []
+    great_circle = []
+    arrivals = []
+    taup = TauPyModel()
     print("asdasd")
