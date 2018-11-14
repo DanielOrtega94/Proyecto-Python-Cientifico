@@ -1,11 +1,30 @@
 import sys
+
 from PyQt5 import *
+from PyQt5 import QtCore
+from PyQt5 import QtGui
+from PyQt5 import QtWidgets
 from PyQt5.uic import *
 from pyqtgraph import QtGui
-from PyQt5 import QtCore, QtGui, QtWidgets
 # from PyQt5.QtCore import QDate, QTime, QDateTime, Qt
 import funciones as f
+#import matplotlib as plt
 import numpy as np
+
+import matplotlib.pyplot as plt
+
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+# plt.use("Qt5Agg")
+from matplotlib import rcParams
+from matplotlib.figure import Figure
+rcParams['font.size'] = 9
+import numpy as np
+import sys
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMenu, QVBoxLayout, QSizePolicy, QMessageBox, QWidget, QPushButton
+from PyQt5.QtGui import QIcon
+
+import random
 
 # variables
 
@@ -54,7 +73,7 @@ class DescargaDatos(QtGui.QDialog):
             #.currentRow()
         self.ui.descargar_listWidget.currentItemChanged.connect(
             self.print_info)
-        #clickeado = self.ui.descargar_listWidget.itemClicked.connect(self.ui.descargar_listWidget.listClicked)
+        # clickeado = self.ui.descargar_listWidget.itemClicked.connect(self.ui.descargar_listWidget.listClicked)
         # print(clickeado)
 
 
@@ -63,12 +82,14 @@ class MainWindow(QtGui.QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.ui = loadUi('interfaz/main_windows.ui', self)
+        self.m = PlotCanvas(self, width=5, height=4)
+        self.m.move(0, 0)
         self.descargar_Button.clicked.connect(self.executeDescargaDatos)
         self.cargar_estaciones_Button.clicked.connect(self.path_estaciones)
         self.cargar_waveforms_Button.clicked.connect(self.path_waveforms)
-
         self.remover_respuesta_Button.clicked.connect(self.remover_respuesta)
         self.filtrar_ondap_Button.clicked.connect(self.remover_respuesta)
+        self.graficar_Button.clicked.connect(self.graficar)
 
     def executeDescargaDatos(self):
         descarga_datos_windows = DescargaDatos()
@@ -107,7 +128,7 @@ class MainWindow(QtGui.QMainWindow):
 
         # necesita waveforms
     def remover_respuesta(self):
-        #print(self.file_waveforms, self.estaciones)
+        # print(self.file_waveforms, self.estaciones)
         try:
             f.remover_respuesta(self.file_waveforms,
                                 self.estaciones, self.waveforms)
@@ -117,8 +138,8 @@ class MainWindow(QtGui.QMainWindow):
             QtGui.QMessageBox.information(
                 self, "Error ", "Ha sucedido algo inesperado")
 
-    def periodo_P():
-        #print(self.file_waveforms, self.estaciones)
+    def periodo_P(self):
+        # print(self.file_waveforms, self.estaciones)
         try:
             f.filtro_periodo_P(self.file_waveforms,
                                self.estaciones, self.waveforms)
@@ -127,6 +148,45 @@ class MainWindow(QtGui.QMainWindow):
         except:
             QtGui.QMessageBox.information(
                 self, "Error ", "Ha sucedido algo inesperado")
+
+    def graficar(self):
+        print("entreo")
+        if(np.size(self.waveforms) == 0):
+            QtGui.QMessageBox.information(
+                self, "Error ", "Ha sucedido algo inesperado")
+        else:
+            self.m.plot(self.waveforms)
+
+
+class PlotCanvas(FigureCanvas):
+
+    def __init__(self, parent=None, width=5, height=4, dpi=100):
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = fig.add_subplot(111)
+
+        FigureCanvas.__init__(self, fig)
+        self.setParent(parent)
+
+        FigureCanvas.setSizePolicy(self,
+                                   QSizePolicy.Expanding,
+                                   QSizePolicy.Expanding)
+        FigureCanvas.updateGeometry(self)
+        # self.plot()
+
+    def plot(self, st):
+        tr = st[0]
+        print(tr)
+        ax = self.figure.add_subplot(111)
+        ax.plot(tr.times("matplotlib"), tr.data, "b-")
+        ax.xaxis_date()
+        #fig.autofmt_xdate()
+        self.draw()
+        # plt.show()
+        # data = [random.random() for i in range(25)]
+        # ax = self.figure.add_subplot(111)
+        # ax.plot(data, 'r-')
+        # ax.set_title('PyQt Matplotlib Example')
+        # self.draw()
 
 app = QtGui.QApplication(sys.argv)
 widget = MainWindow()

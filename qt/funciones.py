@@ -187,3 +187,4 @@ def filtro_periodo_P(directorio, st):
         if(bandera):
             st[c].filter('lowpass', freq=0.2, corners=2, zerophase=True)
         c += 1
+
