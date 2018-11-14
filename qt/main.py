@@ -83,7 +83,7 @@ class MainWindow(QtGui.QMainWindow):
         super(MainWindow, self).__init__()
         self.ui = loadUi('interfaz/main_windows.ui', self)
         self.m = PlotCanvas(self, width=5, height=4)
-        self.m.move(0, 0)
+        self.m.setGeometry(QtCore.QRect(60, 50, 501, 471))
         self.descargar_Button.clicked.connect(self.executeDescargaDatos)
         self.cargar_estaciones_Button.clicked.connect(self.path_estaciones)
         self.cargar_waveforms_Button.clicked.connect(self.path_waveforms)
@@ -171,7 +171,7 @@ class PlotCanvas(FigureCanvas):
                                    QSizePolicy.Expanding,
                                    QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
-        # self.plot()
+
 
     def plot(self, st):
         tr = st[0]
@@ -179,14 +179,9 @@ class PlotCanvas(FigureCanvas):
         ax = self.figure.add_subplot(111)
         ax.plot(tr.times("matplotlib"), tr.data, "b-")
         ax.xaxis_date()
-        #fig.autofmt_xdate()
+        self.figure.autofmt_xdate()
         self.draw()
-        # plt.show()
-        # data = [random.random() for i in range(25)]
-        # ax = self.figure.add_subplot(111)
-        # ax.plot(data, 'r-')
-        # ax.set_title('PyQt Matplotlib Example')
-        # self.draw()
+       
 
 app = QtGui.QApplication(sys.argv)
 widget = MainWindow()
