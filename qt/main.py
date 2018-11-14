@@ -6,9 +6,10 @@ from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 from PyQt5.uic import *
 from pyqtgraph import QtGui
+from PyQt5.QtCore import QObject, pyqtSignal
 # from PyQt5.QtCore import QDate, QTime, QDateTime, Qt
 import funciones as f
-#import matplotlib as plt
+# import matplotlib as plt
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -20,11 +21,18 @@ from matplotlib import rcParams
 from matplotlib.figure import Figure
 rcParams['font.size'] = 9
 import numpy as np
-import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMenu, QVBoxLayout, QSizePolicy, QMessageBox, QWidget, QPushButton
-from PyQt5.QtGui import QIcon
-
 import random
+import sys
+
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QMenu
+from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtWidgets import QSizePolicy
+from PyQt5.QtWidgets import QVBoxLayout
+from PyQt5.QtWidgets import QWidget
 
 # variables
 
@@ -33,13 +41,10 @@ class DescargaDatos(QtGui.QDialog):
 
     def __init__(self):
         super(DescargaDatos, self).__init__()
-
         self.ui = loadUi('interfaz/descarga_datos.ui', self)
-
         fecha = QtCore.QDate.currentDate()
         self.ui.fecha_termino_edit.setDate(fecha)
         self.ui.fecha_inicio_edit.setDate(fecha)
-
         self.datos_Button.clicked.connect(self.enviar_datos)
         self.ui.magnitud_edit.setText("5")
 
@@ -49,32 +54,43 @@ class DescargaDatos(QtGui.QDialog):
             self.ui.descargar_listWidget.currentItem())
         QtGui.QMessageBox.information(
             self, " ", "Datos descargados exitosamente")
-        # f.descargar_datos(self.datos,numero)
+        f.descargar_datos(self.datos, numero)
 
     def enviar_datos(self):
-
         temp_var = self.ui.fecha_inicio_edit.date()
         fecha_inicio = temp_var.toPyDate()
-
         temp_var = self.ui.fecha_termino_edit.date()
         fecha_termino = temp_var.toPyDate()
-
         magnitud = int(self.ui.magnitud_edit.text())
-
-        # self.ui.evento_comboBox.addItem("prueba")
         self.datos = f.pedir_datos(fecha_inicio, fecha_termino, magnitud)
         print(self.datos)
-        # self.ui.evento_comboBox.addItem(element)
         for element in self.datos:
             string = element["event_descriptions"][0].text + \
                 " " + str(element.preferred_magnitude()["mag"])
             self.ui.descargar_listWidget.addItem(string)
-
-            #.currentRow()
         self.ui.descargar_listWidget.currentItemChanged.connect(
             self.print_info)
         # clickeado = self.ui.descargar_listWidget.itemClicked.connect(self.ui.descargar_listWidget.listClicked)
         # print(clickeado)
+
+
+class SeleccionarDatos(QtGui.QDialog):
+
+    def __init__(self, waveforms):
+        super(SeleccionarDatos, self).__init__()
+        self.ui = loadUi('interfaz/seleccionar.ui', self)
+        self.waveforms = waveforms
+        for element in self.waveforms:
+            string = element.__dict__["stats"].network + " " + element.__dict__["stats"].station
+            self.ui.indice_listWidget.addItem(string)
+
+        self.seleccionar_Button.clicked.connect(self.print_info)
+        # self.ui.descargar_listWidget.currentItemChanged.connect()
+
+    def print_info(self):
+        self.numero = self.ui.indice_listWidget.row(
+            self.ui.indice_listWidget.currentItem())
+        self.done(self.numero)
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -89,13 +105,30 @@ class MainWindow(QtGui.QMainWindow):
         self.cargar_waveforms_Button.clicked.connect(self.path_waveforms)
         self.remover_respuesta_Button.clicked.connect(self.remover_respuesta)
         self.filtrar_ondap_Button.clicked.connect(self.remover_respuesta)
-        self.graficar_Button.clicked.connect(self.graficar)
+        #self.graficar_Button.clicked.connect(self.graficar)
+        self.graficar_Button.clicked.connect(self.executeSeleccionarDatos)
+        # print(aux)
+        # variables
+        self.waveforms = ""
+        self.estaciones = ""
 
     def executeDescargaDatos(self):
         descarga_datos_windows = DescargaDatos()
         descarga_datos_windows.exec_()
         # pasar datos de un dialog a otro
-        print(descarga_datos_windows.magnitud_edit.text())
+        # print(descarga_datos_windows.magnitud_edit.text())
+
+    def executeSeleccionarDatos(self):
+        if (type(self.waveforms) is not type(" ")):
+            seleccionar_datos_windows = SeleccionarDatos(self.waveforms)
+            seleccionar_datos_windows.exec_()
+            # recibimos valor de qdialog
+            self.indice_array = seleccionar_datos_windows.numero
+            self.graficar(self.indice_array)
+            self.m.plot(self.waveforms[0])
+        else:
+            QtGui.QMessageBox.information(
+                self, "Error ", "Seleecione carpeta waveforms")
 
     def path_estaciones(self):
         # xml
@@ -129,33 +162,34 @@ class MainWindow(QtGui.QMainWindow):
         # necesita waveforms
     def remover_respuesta(self):
         # print(self.file_waveforms, self.estaciones)
-        try:
+        if(type(self.waveforms) is type(" ") or type(self.estaciones) is type(" ")):
+            QtGui.QMessageBox.information(self, "Error ", "Primero cargue los datos")
+        else:
             f.remover_respuesta(self.file_waveforms,
                                 self.estaciones, self.waveforms)
             QtGui.QMessageBox.information(
                 self, "Exito", "Operacion realizada correctamente")
-        except:
-            QtGui.QMessageBox.information(
-                self, "Error ", "Ha sucedido algo inesperado")
+        
+            
 
     def periodo_P(self):
         # print(self.file_waveforms, self.estaciones)
-        try:
+        if(type(self.waveforms) is type(" ") or type(self.estaciones) is type(" ")):
+            QtGui.QMessageBox.information(self, "Error ", "Primero cargue los datos")
+        else:
             f.filtro_periodo_P(self.file_waveforms,
                                self.estaciones, self.waveforms)
             QtGui.QMessageBox.information(
                 self, "Exito", "Operacion realizada correctamente")
-        except:
-            QtGui.QMessageBox.information(
-                self, "Error ", "Ha sucedido algo inesperado")
 
-    def graficar(self):
-        print("entreo")
-        if(np.size(self.waveforms) == 0):
+    def graficar(self, numero):
+        if(type(self.waveforms) is type(" ")):
             QtGui.QMessageBox.information(
-                self, "Error ", "Ha sucedido algo inesperado")
+                self, "Error ", "Primero cargue los datos")
         else:
-            self.m.plot(self.waveforms)
+            self.m.plot(self.waveforms[numero])
+            QtGui.QMessageBox.information(
+                self, " ", "Datos graficos exitosamente")
 
 
 class PlotCanvas(FigureCanvas):
@@ -172,16 +206,15 @@ class PlotCanvas(FigureCanvas):
                                    QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
 
-
     def plot(self, st):
-        tr = st[0]
+        tr = st
         print(tr)
         ax = self.figure.add_subplot(111)
         ax.plot(tr.times("matplotlib"), tr.data, "b-")
         ax.xaxis_date()
         self.figure.autofmt_xdate()
         self.draw()
-       
+
 
 app = QtGui.QApplication(sys.argv)
 widget = MainWindow()
