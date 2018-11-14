@@ -5,49 +5,45 @@ import os
 from obspy import read, read_inventory, UTCDateTime
 from obspy.geodetics.base import calc_vincenty_inverse, locations2degrees
 from obspy.taup.tau import TauPyModel
+from PyQt5 import QtCore, QtGui, QtWidgets
+
+
+# pre_filt = [0.001, 0.005, 10, 20]
+# dist = []
+# az = []
+# baz = []
+# canal = []
+# great_circle = []
+# arrivals = []
+# taup = TauPyModel()
+# lat_e = 0
+# lon_e = 0
+# time = 0
 
 
 def pedir_datos(t1, t2, magnitud):
     client = Client("IRIS")
-    #t1 = obspy.UTCDateTime("2018-08-18T00:00:00")
-    #t2 = obspy.UTCDateTime("2018-08-21T00:00:00")
-    #magnitud = 7
     cat = client.get_events(starttime=t1, endtime=t2, minmagnitude=magnitud)
     return cat
 
 
 def descargar_datos(cat, numero):
-    #t1 = obspy.UTCDateTime("2018-08-18T00:00:00")
-    #t2 = obspy.UTCDateTime("2018-08-21T00:00:00")
-    #magnitud = 7
-    #cat = client.get_events(starttime=t1, endtime=t2, minmagnitude=magnitud)
-    #i = 0
-    # for elemento in cat:
-    #    print(i, elemento)
-    #    i += 1
-    #numero = int(input("seleccion un evento"))
     client = Client("IRIS")
     evento = cat[numero]
     nombre_evento = evento.event_descriptions[0].text
-
-# lista
     origen = cat[numero].origins
-
     nombre_evento = nombre_evento + \
         str(origen[0].time.year) + "-" + \
         str(origen[0].time.month) + "-" + str(origen[0].time.day)
-
     lat_e = origen[0].latitude
     lon_e = origen[0].longitude
     time = origen[0].time
     depth = origen[0].depth
     radiomin = 50.0
     radiomax = 90.0
-
     domain = CircularDomain(latitude=lat_e, longitude=lon_e,
                             minradius=radiomin, maxradius=radiomax)
     mdl = MassDownloader(providers=["IRIS"])
-
     restrictions = Restrictions(starttime=time - 60, endtime=time + 3600, chunklength_in_sec=86400, location="00", channel="BHZ", reject_channels_with_gaps=True, minimum_length=0.95, minimum_interstation_distance_in_m=1000.0,
                                 sanitize=True)
 
@@ -71,18 +67,27 @@ def descargar_datos(cat, numero):
                  stationxml_storage=n_carpeta_s)
 
 
-def cargar_estations(directorio):
+def cargar_waveforms(directorio):
         # cargamos las carpetas asi, pero luego en la interfaz sera automatico
     ruta_w = directorio
     ruta_w = ruta_w + "/*.mseed"
-    print(ruta_w)
-    st = read(ruta_w)
-    return st
+    # print(ruta_w)
+    try:
+        st = read(ruta_w)
+        return st
+    except:
+        print("AAAAAAAAAAA")
 
 
-def remover_respuesta(directorio,st):
-    XML = os.listdir(ruta_s)
+def cargar_stations(directorio):
+    ruta_w = directorio
+    ruta_w = ruta_w
+    XML = os.listdir(ruta_w)
     XML = sorted(XML)
+    return XML
+
+
+def remover_respuesta(directorio, XML, st):
     c = 0
     # un filtro para frecuencias muy altas y bajas
     pre_filt = [0.001, 0.005, 10, 20]
@@ -93,14 +98,92 @@ def remover_respuesta(directorio,st):
     great_circle = []
     arrivals = []
     taup = TauPyModel()
-    ruta_w = ruta_w.replace("waveforms","info.txt")
-    archivo = open(ruta_w)
-    array =[]
+
+    directorio = directorio.replace("waveforms", "info.txt")
+    archivo = open(directorio)
+    array = []
     for element in archivo:
-        array.append(element.replace("\n",""))
+        array.append(element.replace("\n", ""))
     lat_e = float(array[0])
     lon_e = float(array[1])
     time = UTCDateTime(array[2])
+    directorio = directorio.replace("info.txt", "stations")
+    # print(directorio)
+    os.chdir(directorio)
 
-def filto_perido_P(directorio,st):
-    print("asdasd")
+    for resp in XML:
+        print(resp)
+        inv = read_inventory(str(resp))
+        datachannel = inv.get_contents()
+        channel = datachannel['channels']
+        datacoor = inv.get_coordinates(channel[0], time)
+        coords = [datacoor['latitude'], datacoor[
+            'longitude'], datacoor['local_depth']]
+        [disti, azi, bazi] = calc_vincenty_inverse(
+            lat_e, lon_e, coords[0], coords[1])
+        greatcirc = locations2degrees(lat_e, lon_e, coords[0], coords[1])
+        dist.append(disti)
+        az.append(azi)
+        baz.append(bazi)
+        canal.append(channel[0])
+        bandera = True
+        i = 0
+        for element in inv.get_response(inv.get_contents()["channels"][0], time).__dict__['response_stages']:
+            if (type(element) is obspy.core.inventory.response.ResponseStage):
+                i += 1
+            if(i > 1):
+                bandera = False
+        if(bandera):
+            st[c].remove_response(
+                inventory=inv, pre_filt=pre_filt, output="VEL", plot=False)
+        c += 1
+
+
+def filtro_periodo_P(directorio, st):
+    c = 0
+    pre_filt = [0.001, 0.005, 10, 20]
+    dist = []
+    az = []
+    baz = []
+    canal = []
+    great_circle = []
+    arrivals = []
+    taup = TauPyModel()
+    os.chdir(ruta_w)
+    directorio = directorio.replace("waveforms", "info.txt")
+    archivo = open(directorio)
+    array = []
+    for element in archivo:
+        array.append(element.replace("\n", ""))
+    lat_e = float(array[0])
+    lon_e = float(array[1])
+    time = UTCDateTime(array[2])
+    directorio = directorio.replace("info.txt", "stations")
+    # print(directorio)
+    os.chdir(directorio)
+
+    for resp in XML:
+        print(resp)
+        inv = read_inventory(str(resp))
+        datachannel = inv.get_contents()
+        channel = datachannel['channels']
+        datacoor = inv.get_coordinates(channel[0], time)
+        coords = [datacoor['latitude'], datacoor[
+            'longitude'], datacoor['local_depth']]
+        [disti, azi, bazi] = calc_vincenty_inverse(
+            lat_e, lon_e, coords[0], coords[1])
+        greatcirc = locations2degrees(lat_e, lon_e, coords[0], coords[1])
+        dist.append(disti)
+        az.append(azi)
+        baz.append(bazi)
+        canal.append(channel[0])
+        bandera = True
+        i = 0
+        for element in inv.get_response(inv.get_contents()["channels"][0], time).__dict__['response_stages']:
+            if (type(element) is obspy.core.inventory.response.ResponseStage):
+                i += 1
+                if(i > 1):
+                    bandera = False
+        if(bandera):
+            st[c].filter('lowpass', freq=0.2, corners=2, zerophase=True)
+        c += 1

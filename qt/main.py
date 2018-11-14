@@ -5,7 +5,7 @@ from pyqtgraph import QtGui
 from PyQt5 import QtCore, QtGui, QtWidgets
 # from PyQt5.QtCore import QDate, QTime, QDateTime, Qt
 import funciones as f
-
+import numpy as np
 
 # variables
 
@@ -28,7 +28,8 @@ class DescargaDatos(QtGui.QDialog):
         # print(self.ui.descargar_listWidget.currentItem().text())
         numero = self.ui.descargar_listWidget.row(
             self.ui.descargar_listWidget.currentItem())
-        QtGui.QMessageBox.information(self, " ","Datos descargados exitosamente")
+        QtGui.QMessageBox.information(
+            self, " ", "Datos descargados exitosamente")
         # f.descargar_datos(self.datos,numero)
 
     def enviar_datos(self):
@@ -65,6 +66,7 @@ class MainWindow(QtGui.QMainWindow):
         self.descargar_Button.clicked.connect(self.executeDescargaDatos)
         self.cargar_estaciones_Button.clicked.connect(self.path_estaciones)
         self.cargar_waveforms_Button.clicked.connect(self.path_waveforms)
+
         self.remover_respuesta_Button.clicked.connect(self.remover_respuesta)
         self.filtrar_ondap_Button.clicked.connect(self.remover_respuesta)
 
@@ -75,21 +77,56 @@ class MainWindow(QtGui.QMainWindow):
         print(descarga_datos_windows.magnitud_edit.text())
 
     def path_estaciones(self):
+        # xml
         self.file_estaciones = str(QtGui.QFileDialog.getExistingDirectory(
-            self, "Seleccione una carpeta"))
+            self, "Seleccione estaciones"))
         if self.file_estaciones:
-            print(self.file_estaciones)
-            self.estaciones = f.cargar_estations(self.file_estaciones)
+            self.estaciones = f.cargar_stations(self.file_estaciones)
+            # print(self.estaciones)
+            if(np.size(self.estaciones) == 0):
+                QtGui.QMessageBox.information(
+                    self, "Error ", "Seleecione carpeta estaciones")
+            else:
+                QtGui.QMessageBox.information(
+                    self, "Exito", "Archivos cargados correctamente")
 
+               # st
     def path_waveforms(self):
         self.file_waveforms = str(QtGui.QFileDialog.getExistingDirectory(
-            self, "Seleccione una carpeta"))
+            self, "Seleccione waveforms"))
         if self.file_waveforms:
-            print(self.file_estaciones)
+            # print(self.file_estaciones)
+            self.waveforms = f.cargar_waveforms(self.file_waveforms)
+            # print(self.waveforms)
+            if(np.size(self.waveforms) == 0):
+                QtGui.QMessageBox.information(
+                    self, "Error ", "Seleecione carpeta waveforms")
+            else:
+                QtGui.QMessageBox.information(
+                    self, "Exito", "Archivos cargados correctamente")
 
+        # necesita waveforms
     def remover_respuesta(self):
-    	print("asdasd")
+        #print(self.file_waveforms, self.estaciones)
+        try:
+            f.remover_respuesta(self.file_waveforms,
+                                self.estaciones, self.waveforms)
+            QtGui.QMessageBox.information(
+                self, "Exito", "Operacion realizada correctamente")
+        except:
+            QtGui.QMessageBox.information(
+                self, "Error ", "Ha sucedido algo inesperado")
 
+    def periodo_P():
+        #print(self.file_waveforms, self.estaciones)
+        try:
+            f.filtro_periodo_P(self.file_waveforms,
+                               self.estaciones, self.waveforms)
+            QtGui.QMessageBox.information(
+                self, "Exito", "Operacion realizada correctamente")
+        except:
+            QtGui.QMessageBox.information(
+                self, "Error ", "Ha sucedido algo inesperado")
 
 app = QtGui.QApplication(sys.argv)
 widget = MainWindow()
