@@ -1,5 +1,4 @@
 import sys
-
 from PyQt5 import *
 from PyQt5 import QtCore
 from PyQt5 import QtGui
@@ -11,9 +10,7 @@ from PyQt5.QtCore import QObject, pyqtSignal
 import funciones as f
 # import matplotlib as plt
 import numpy as np
-
 import matplotlib.pyplot as plt
-
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 # plt.use("Qt5Agg")
@@ -23,7 +20,6 @@ rcParams['font.size'] = 9
 import numpy as np
 import random
 import sys
-
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QMainWindow
@@ -37,25 +33,42 @@ from PyQt5.QtWidgets import QWidget
 # variables
 
 
+# definimos una clase para crear una nueva ventana de dialogo
 class DescargaDatos(QtGui.QDialog):
+    # constructor de la clase en el, seleccionamos la interfaz a que deseamos
+    # que sea mostrada, luego debemos conectar los elementos de las interfazs
+    # a los metodos
 
     def __init__(self):
         super(DescargaDatos, self).__init__()
         self.ui = loadUi('interfaz/descarga_datos.ui', self)
         fecha = QtCore.QDate.currentDate()
+        # dejamos un valor predeterminado, que corresponde a la fecha actual
         self.ui.fecha_termino_edit.setDate(fecha)
         self.ui.fecha_inicio_edit.setDate(fecha)
+        # al pinchar el boton se ejecuta el meotodos
         self.datos_Button.clicked.connect(self.enviar_datos)
+        # deja un valor predeterminado que corresponde a 5
         self.ui.magnitud_edit.setText("5")
 
+    # realizamos una llamada al metodo descargar_datos datos, cuando se
+    # seleeciona un elemento en la lista, previamente cargados por
+    # enviar_datos
     def print_info(self):
-        # print(self.ui.descargar_listWidget.currentItem().text())
         numero = self.ui.descargar_listWidget.row(
             self.ui.descargar_listWidget.currentItem())
-        QtGui.QMessageBox.information(
-            self, " ", "Datos descargados exitosamente")
-        f.descargar_datos(self.datos, numero)
+        try:
+            f.descargar_datos(self.datos, numero)
+            QtGui.QMessageBox.information(
+                self, " ", "Datos descargados exitosamente")
+        except:
+            QtGui.QMessageBox.information(
+                self, " ", "No se encontraron registros para los datos seleccionados")
 
+        self.done(0)
+
+    # llamamos al metodo enviar_datos, para descargar la informacion asociado
+    # a los datos y cargarlos en una lista, para luego poder ser seleecionados
     def enviar_datos(self):
         temp_var = self.ui.fecha_inicio_edit.date()
         fecha_inicio = temp_var.toPyDate()
@@ -74,27 +87,36 @@ class DescargaDatos(QtGui.QDialog):
         # print(clickeado)
 
 
+# Ventana de dialogo para seleccionar el evento que queremos graficar
 class SeleccionarDatos(QtGui.QDialog):
 
+    # cargamos lista de datos, cargados en el programa, para luego ser
+    # retornado el indice escogido, para ser graficado en la interfaz
+    # principal del programa
     def __init__(self, waveforms):
         super(SeleccionarDatos, self).__init__()
         self.ui = loadUi('interfaz/seleccionar.ui', self)
         self.waveforms = waveforms
         for element in self.waveforms:
-            string = element.__dict__["stats"].network + " " + element.__dict__["stats"].station
+            string = element.__dict__["stats"].network + \
+                " " + element.__dict__["stats"].station
             self.ui.indice_listWidget.addItem(string)
-
         self.seleccionar_Button.clicked.connect(self.print_info)
-        # self.ui.descargar_listWidget.currentItemChanged.connect()
 
+    # funcion que retona el numero seleccionado, en la lista
     def print_info(self):
         self.numero = self.ui.indice_listWidget.row(
             self.ui.indice_listWidget.currentItem())
         self.done(self.numero)
 
+# ventana principal de la aplicacion se define los metodos y el espacio
+# para realizar graficos
+
 
 class MainWindow(QtGui.QMainWindow):
 
+    # asociamos eventos a apretar los botones, que corresponden a llamadas de
+    # funciones
     def __init__(self):
         super(MainWindow, self).__init__()
         self.ui = loadUi('interfaz/main_windows.ui', self)
@@ -105,19 +127,22 @@ class MainWindow(QtGui.QMainWindow):
         self.cargar_waveforms_Button.clicked.connect(self.path_waveforms)
         self.remover_respuesta_Button.clicked.connect(self.remover_respuesta)
         self.filtrar_ondap_Button.clicked.connect(self.remover_respuesta)
-        #self.graficar_Button.clicked.connect(self.graficar)
         self.graficar_Button.clicked.connect(self.executeSeleccionarDatos)
-        # print(aux)
-        # variables
         self.waveforms = ""
         self.estaciones = ""
 
+        # metodo que llama a un instancia de DescargaDatos, y muestra la
+        # pantalla, la ejecuccion del metodo exec_(), permite retonar valores
+        # de los dialogos
     def executeDescargaDatos(self):
         descarga_datos_windows = DescargaDatos()
         descarga_datos_windows.exec_()
         # pasar datos de un dialog a otro
         # print(descarga_datos_windows.magnitud_edit.text())
 
+        # metodo que llama a un instancia de SeleccionarDatos, y muestra la
+        # pantalla, la ejecuccion del metodo exec_(), permite retonar valores
+        # de los dialogos
     def executeSeleccionarDatos(self):
         if (type(self.waveforms) is not type(" ")):
             seleccionar_datos_windows = SeleccionarDatos(self.waveforms)
@@ -130,8 +155,9 @@ class MainWindow(QtGui.QMainWindow):
             QtGui.QMessageBox.information(
                 self, "Error ", "Seleecione carpeta waveforms")
 
+    # cargamos una interfaz, para seleccionar el una carpeta, donde se
+    # encuentran almacenadas las estaciones, para luego ser cargadas
     def path_estaciones(self):
-        # xml
         self.file_estaciones = str(QtGui.QFileDialog.getExistingDirectory(
             self, "Seleccione estaciones"))
         if self.file_estaciones:
@@ -144,7 +170,8 @@ class MainWindow(QtGui.QMainWindow):
                 QtGui.QMessageBox.information(
                     self, "Exito", "Archivos cargados correctamente")
 
-               # st
+   # cargamos una interfaz, para seleccionar el una carpeta, donde se
+   # encuentran almacenadas las waveforms para luego ser cargadas
     def path_waveforms(self):
         self.file_waveforms = str(QtGui.QFileDialog.getExistingDirectory(
             self, "Seleccione waveforms"))
@@ -159,29 +186,39 @@ class MainWindow(QtGui.QMainWindow):
                 QtGui.QMessageBox.information(
                     self, "Exito", "Archivos cargados correctamente")
 
-        # necesita waveforms
+        # funcion que realiza los checks necesarios para llamar al metodo
+        # remover_respuesta, si existen archivos cargados, nos permite llamar a
+        # la funcion, de otra manera, nos indicara que debemos cargar los
+        # archivos
     def remover_respuesta(self):
-        # print(self.file_waveforms, self.estaciones)
         if(type(self.waveforms) is type(" ") or type(self.estaciones) is type(" ")):
-            QtGui.QMessageBox.information(self, "Error ", "Primero cargue los datos")
+            QtGui.QMessageBox.information(
+                self, "Error ", "Primero cargue los datos")
         else:
             f.remover_respuesta(self.file_waveforms,
                                 self.estaciones, self.waveforms)
             QtGui.QMessageBox.information(
                 self, "Exito", "Operacion realizada correctamente")
-        
-            
+        # funcion que realiza los checks necesarios para llamar al metodo
+        # periodo_P, si existen archivos cargados, nos permite llamar a
+        # la funcion, de otra manera, nos indicara que debemos cargar los
+        # archivos
 
     def periodo_P(self):
         # print(self.file_waveforms, self.estaciones)
         if(type(self.waveforms) is type(" ") or type(self.estaciones) is type(" ")):
-            QtGui.QMessageBox.information(self, "Error ", "Primero cargue los datos")
+            QtGui.QMessageBox.information(
+                self, "Error ", "Primero cargue los datos")
         else:
             f.filtro_periodo_P(self.file_waveforms,
                                self.estaciones, self.waveforms)
             QtGui.QMessageBox.information(
                 self, "Exito", "Operacion realizada correctamente")
 
+        # funcion que realiza los checks necesarios para llamar al metodo
+        # graficar, si existen archivos cargados, nos permite llamar a
+        # la funcion y se actualiza el grafico, de otra manera, nos indicara que debemos cargar los
+        # archivos
     def graficar(self, numero):
         if(type(self.waveforms) is type(" ")):
             QtGui.QMessageBox.information(
@@ -192,20 +229,21 @@ class MainWindow(QtGui.QMainWindow):
                 self, " ", "Datos graficos exitosamente")
 
 
+# clase definida, para definir un lugar donde se pueda graficar en la interfaz
 class PlotCanvas(FigureCanvas):
 
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = fig.add_subplot(111)
-
         FigureCanvas.__init__(self, fig)
         self.setParent(parent)
-
-        FigureCanvas.setSizePolicy(self,
-                                   QSizePolicy.Expanding,
-                                   QSizePolicy.Expanding)
+        FigureCanvas.setSizePolicy(
+            self, QSizePolicy.Expanding, QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
 
+    # funcion para actualizar el grafico, ademas si se quieren definir
+    # distintos estilos de graficos se puede modificar aqui, agregando o
+    # eliminando parametros
     def plot(self, st):
         tr = st
         print(tr)
@@ -216,6 +254,7 @@ class PlotCanvas(FigureCanvas):
         self.draw()
 
 
+# llama a la ejecuccion de la ventana principal dando inicio a la aplicaicon
 app = QtGui.QApplication(sys.argv)
 widget = MainWindow()
 widget.show()

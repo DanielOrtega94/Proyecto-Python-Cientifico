@@ -8,23 +8,19 @@ from obspy.taup.tau import TauPyModel
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-# pre_filt = [0.001, 0.005, 10, 20]
-# dist = []
-# az = []
-# baz = []
-# canal = []
-# great_circle = []
-# arrivals = []
-# taup = TauPyModel()
-# lat_e = 0
-# lon_e = 0
-# time = 0
-
-
+# funcion encargada de retonar el nombre de los datos, que se encuentran
+# disponibles a descargar, datos una fecha de inicio, una fecha de termino
+# y una magnitud
 def pedir_datos(t1, t2, magnitud):
     client = Client("IRIS")
     cat = client.get_events(starttime=t1, endtime=t2, minmagnitude=magnitud)
     return cat
+
+# dado un indice, y un array de waveforms, seleecionamos un evento para
+# ser descargados, donde de los eventos, descargamos las estaciones y las
+# waveforms, la descarga de los datos se realiza en carpetas
+# diferenciables, para poder facilitar el posterior uso, y manipulacion de
+# datos
 
 
 def descargar_datos(cat, numero):
@@ -48,7 +44,6 @@ def descargar_datos(cat, numero):
                                 sanitize=True)
 
     ruta = os.getcwd()
-
     rutas = "datos/"
     informacion = ruta + "/" + rutas + nombre_evento
     n_carpeta_w = nombre_evento + "/waveforms"
@@ -63,10 +58,14 @@ def descargar_datos(cat, numero):
     archivo.write(str(time) + "\n")
     archivo.close()
     os.chdir("..")
-    mdl.download(domain, restrictions, mseed_storage=n_carpeta_w,
-                 stationxml_storage=n_carpeta_s)
+    try:
+        mdl.download(domain, restrictions, mseed_storage=n_carpeta_w,
+                     stationxml_storage=n_carpeta_s)
+    except:
+        return 0
 
-
+# intentamos cargar el directorio de las waveforms, si falla se muestra un
+# mensaje
 def cargar_waveforms(directorio):
         # cargamos las carpetas asi, pero luego en la interfaz sera automatico
     ruta_w = directorio
@@ -78,7 +77,8 @@ def cargar_waveforms(directorio):
     except:
         print("AAAAAAAAAAA")
 
-
+# intentamos cargar el directorio de las estaciones, si falla se muestra un
+# mensjae
 def cargar_stations(directorio):
     ruta_w = directorio
     ruta_w = ruta_w
@@ -87,6 +87,7 @@ def cargar_stations(directorio):
     return XML
 
 
+# removemos la respuesta del instrumentos a los sismogramas
 def remover_respuesta(directorio, XML, st):
     c = 0
     # un filtro para frecuencias muy altas y bajas
@@ -139,6 +140,7 @@ def remover_respuesta(directorio, XML, st):
         c += 1
 
 
+# remmovemos el periodo P a los simogramas
 def filtro_periodo_P(directorio, st):
     c = 0
     pre_filt = [0.001, 0.005, 10, 20]
@@ -187,4 +189,3 @@ def filtro_periodo_P(directorio, st):
         if(bandera):
             st[c].filter('lowpass', freq=0.2, corners=2, zerophase=True)
         c += 1
-
