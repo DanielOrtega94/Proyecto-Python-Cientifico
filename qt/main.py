@@ -220,13 +220,14 @@ class MainWindow(QtGui.QMainWindow):
         # la funcion y se actualiza el grafico, de otra manera, nos indicara que debemos cargar los
         # archivos
     def graficar(self, numero):
-        if(type(self.waveforms) is type(" ")):
-            QtGui.QMessageBox.information(
-                self, "Error ", "Primero cargue los datos")
-        else:
+                # if(type(self.waveforms) is type(" ")):
+        try:
             self.m.plot(self.waveforms[numero])
             QtGui.QMessageBox.information(
                 self, " ", "Datos graficos exitosamente")
+        except:
+            QtGui.QMessageBox.information(
+                self, "Error ", "Primero cargue los datos")
 
 
 # clase definida, para definir un lugar donde se pueda graficar en la interfaz

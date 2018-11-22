@@ -21,8 +21,6 @@ def pedir_datos(t1, t2, magnitud):
 # waveforms, la descarga de los datos se realiza en carpetas
 # diferenciables, para poder facilitar el posterior uso, y manipulacion de
 # datos
-
-
 def descargar_datos(cat, numero):
     client = Client("IRIS")
     evento = cat[numero]
