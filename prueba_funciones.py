@@ -18,7 +18,7 @@ for element in datos:
 directorio = "D:/Daniel/Documents/GitHub/Proyecto-Python/qt/datos/CENTRAL EAST PACIFIC RISE2018-11-12/waveforms"
 
 archivos = f.cargar_waveforms(directorio)
-#print(type(archivos))
+print(type(archivos))
 # for element in archivos:
 # 	print(element)
 print(archivos[0].__dict__["stats"].network,archivos[0].__dict__["stats"].station)
