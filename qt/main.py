@@ -1,3 +1,4 @@
+import os
 import sys
 from PyQt5 import *
 from PyQt5 import QtCore
@@ -124,6 +125,7 @@ class MainWindow(QtGui.QMainWindow):
         self.m.setGeometry(QtCore.QRect(60, 50, 501, 471))
         self.descargar_Button.clicked.connect(self.executeDescargaDatos)
         self.cargar_estaciones_Button.clicked.connect(self.path_estaciones)
+        self.mapa_Button.clicked.connect(self.graficar_mapa)
         self.cargar_waveforms_Button.clicked.connect(self.path_waveforms)
         self.remover_respuesta_Button.clicked.connect(self.remover_respuesta)
         self.filtrar_ondap_Button.clicked.connect(self.remover_respuesta)
@@ -204,7 +206,7 @@ class MainWindow(QtGui.QMainWindow):
         # la funcion, de otra manera, nos indicara que debemos cargar los
         # archivos
 
-    def periodo_P(self):
+    def periodo_P(self):    
         # print(self.file_waveforms, self.estaciones)
         if(type(self.waveforms) is type(" ") or type(self.estaciones) is type(" ")):
             QtGui.QMessageBox.information(
@@ -229,6 +231,12 @@ class MainWindow(QtGui.QMainWindow):
             QtGui.QMessageBox.information(
                 self, "Error ", "Primero cargue los datos")
 
+    def graficar_mapa(self):
+        ruta=os.getcwd() +"/interfaz/estaciones.png"
+        if self.file_estaciones:
+            f.mapa(self.file_estaciones,ruta)
+        else:
+            QtGui.QMessageBox.information(self, "Error ", "Cargue waveforms y stations del evento")
 
 # clase definida, para definir un lugar donde se pueda graficar en la interfaz
 class PlotCanvas(FigureCanvas):

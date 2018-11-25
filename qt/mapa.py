@@ -28,17 +28,18 @@ lon_e = float(array[1])
 folium.Marker(location=[lat_e, lon_e], popup='Lugar Evento',
               icon=folium.Icon(color='red', icon='info-sign')).add_to(m)
 
-# icon = folium.features.CustomIcon(icon_url,icon_size=(14, 14))
+
+icon_url = "D:/Daniel/Documents/GitHub/Proyecto-Python/qt/interfaz/estaciones.png"
+icon = folium.features.CustomIcon(icon_url, icon_size=(14, 14))
+
+
 for resp in archivos:
-    # print(resp)
     inv = read_inventory(str(resp))
     nombre = resp.replace(".xml", "")
     latitud = inv[0][0].__dict__["_latitude"]
     longitud = inv[0][0].__dict__["_longitude"]
-    folium.Marker(location=[latitud, longitud], popup=nombre).add_to(m)
-    # folium.LayerControl(collapsed=False).add_to(m)
-    # inv.plot()
-    # print(nombre, latitud, longitud)
+    folium.Marker(location=[latitud, longitud],
+                  popup=nombre, icon=icon,).add_to(m)
     m.add_child(folium.LatLngPopup())
 
 os.chdir(directorio_anterior)

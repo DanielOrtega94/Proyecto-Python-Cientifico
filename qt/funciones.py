@@ -1,16 +1,27 @@
+import folium
 import obspy
-from obspy.clients.fdsn import Client
-from obspy.clients.fdsn.mass_downloader import CircularDomain, Restrictions, MassDownloader
 import os
-from obspy import read, read_inventory, UTCDateTime
-from obspy.geodetics.base import calc_vincenty_inverse, locations2degrees
-from obspy.taup.tau import TauPyModel
-from PyQt5 import QtCore, QtGui, QtWidgets
+import webbrowser
 
+from PyQt5 import QtCore
+from PyQt5 import QtGui
+from PyQt5 import QtWidgets
+from obspy import UTCDateTime
+from obspy import read
+from obspy import read_inventory
+from obspy.clients.fdsn import Client
+from obspy.clients.fdsn.mass_downloader import CircularDomain
+from obspy.clients.fdsn.mass_downloader import MassDownloader
+from obspy.clients.fdsn.mass_downloader import Restrictions
+from obspy.geodetics.base import calc_vincenty_inverse
+from obspy.geodetics.base import locations2degrees
+from obspy.taup.tau import TauPyModel
 
 # funcion encargada de retonar el nombre de los datos, que se encuentran
 # disponibles a descargar, datos una fecha de inicio, una fecha de termino
 # y una magnitud
+
+
 def pedir_datos(t1, t2, magnitud):
     client = Client("IRIS")
     cat = client.get_events(starttime=t1, endtime=t2, minmagnitude=magnitud)
@@ -21,6 +32,8 @@ def pedir_datos(t1, t2, magnitud):
 # waveforms, la descarga de los datos se realiza en carpetas
 # diferenciables, para poder facilitar el posterior uso, y manipulacion de
 # datos
+
+
 def descargar_datos(cat, numero):
     client = Client("IRIS")
     evento = cat[numero]
@@ -64,6 +77,8 @@ def descargar_datos(cat, numero):
 
 # intentamos cargar el directorio de las waveforms, si falla se muestra un
 # mensaje
+
+
 def cargar_waveforms(directorio):
         # cargamos las carpetas asi, pero luego en la interfaz sera automatico
     ruta_w = directorio
@@ -77,6 +92,8 @@ def cargar_waveforms(directorio):
 
 # intentamos cargar el directorio de las estaciones, si falla se muestra un
 # mensjae
+
+
 def cargar_stations(directorio):
     ruta_w = directorio
     ruta_w = ruta_w
@@ -107,8 +124,8 @@ def remover_respuesta(directorio, XML, st):
     lon_e = float(array[1])
     time = UTCDateTime(array[2])
     directorio = directorio.replace("info.txt", "stations")
-    # print(directorio)
     os.chdir(directorio)
+    # print(directorio)
 
     for resp in XML:
         print(resp)
@@ -187,3 +204,46 @@ def filtro_periodo_P(directorio, st):
         if(bandera):
             st[c].filter('lowpass', freq=0.2, corners=2, zerophase=True)
         c += 1
+
+
+# funcion que carga el mapa que se abre en navegador usando las librerias
+# folium y branca
+def mapa(directorio, icono):
+    # creamos el mapa
+    m = folium.Map(tiles='Stamen Terrain', zoom_start=0.5, min_zoom=2)
+    # creamos el icono para identificar las estaciones
+    fig_icono = folium.features.CustomIcon(icono, icon_size=(14, 14))
+
+    # graficamos las estaciones
+    archivos = cargar_stations(directorio)
+    os.chdir(directorio)
+    for resp in archivos:
+        print(resp)
+        inv = read_inventory(str(resp))
+        nombre = resp.replace(".xml", "")
+        latitud = inv[0][0].__dict__["_latitude"]
+        longitud = inv[0][0].__dict__["_longitude"]
+        #
+        # marker = folium.map.Marker([latitud, longitud], icon=fig_icono,popup=nombre)
+        # m.add_children(marker)
+        folium.Marker(location=[latitud, longitud],
+                      popup=nombre).add_to(m)
+        m.add_child(folium.LatLngPopup())
+
+    # cargamos la informacion del terremoto
+    directorio = directorio.replace("stations", "info.txt")
+    archivo = open(directorio)
+    array = []
+    for element in archivo:
+        array.append(element.replace("\n", ""))
+    lat_e = float(array[0])
+    lon_e = float(array[1])
+    folium.Marker(location=[lat_e, lon_e], popup='Lugar Evento',
+                  icon=folium.Icon(color='red', icon='info-sign')).add_to(m)
+    directorio = directorio.replace("info.txt", "")
+    print(directorio)
+    os.chdir(directorio)
+    m.save('index.html')
+    webbrowser.open("index.html")
+
+    # leer
