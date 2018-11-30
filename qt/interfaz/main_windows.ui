@@ -17,20 +17,13 @@
    <widget class="QWidget" name="verticalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>590</x>
-      <y>40</y>
+      <x>600</x>
+      <y>130</y>
       <width>160</width>
-      <height>151</height>
+      <height>71</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
-     <item>
-      <widget class="QPushButton" name="descargar_Button">
-       <property name="text">
-        <string>Descargar Datos</string>
-       </property>
-      </widget>
-     </item>
      <item>
       <widget class="QPushButton" name="cargar_estaciones_Button">
        <property name="text">
@@ -76,8 +69,8 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>590</x>
-      <y>10</y>
+      <x>580</x>
+      <y>90</y>
       <width>121</width>
       <height>31</height>
      </rect>
@@ -137,6 +130,19 @@
       </widget>
      </item>
     </layout>
+   </widget>
+   <widget class="QPushButton" name="descargar_Button">
+    <property name="geometry">
+     <rect>
+      <x>600</x>
+      <y>60</y>
+      <width>158</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Descargar Datos</string>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

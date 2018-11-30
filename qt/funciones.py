@@ -39,9 +39,9 @@ def descargar_datos(cat, numero):
     evento = cat[numero]
     nombre_evento = evento.event_descriptions[0].text
     origen = cat[numero].origins
-    nombre_evento = nombre_evento + \
-        str(origen[0].time.year) + "-" + \
+    fecha_evento = str(origen[0].time.year) + "-" + \
         str(origen[0].time.month) + "-" + str(origen[0].time.day)
+    nombre_evento = nombre_evento + fecha_evento
     lat_e = origen[0].latitude
     lon_e = origen[0].longitude
     time = origen[0].time
@@ -67,6 +67,7 @@ def descargar_datos(cat, numero):
     archivo.write(str(lat_e) + "\n")
     archivo.write(str(lon_e) + "\n")
     archivo.write(str(time) + "\n")
+    archivo.write(str(fecha_evento) + "\n")
     archivo.close()
     os.chdir("..")
     try:

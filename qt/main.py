@@ -4,14 +4,16 @@ from PyQt5 import *
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
+from PyQt5.QtCore import QObject
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.uic import *
 from pyqtgraph import QtGui
-from PyQt5.QtCore import QObject, pyqtSignal
 # from PyQt5.QtCore import QDate, QTime, QDateTime, Qt
 import funciones as f
 # import matplotlib as plt
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 # plt.use("Qt5Agg")
@@ -19,8 +21,10 @@ from matplotlib import rcParams
 from matplotlib.figure import Figure
 rcParams['font.size'] = 9
 import numpy as np
+import pandas as pd
 import random
 import sys
+
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QMainWindow
@@ -30,7 +34,6 @@ from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QSizePolicy
 from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QWidget
-
 # variables
 
 
@@ -51,6 +54,17 @@ class DescargaDatos(QtGui.QDialog):
         self.datos_Button.clicked.connect(self.enviar_datos)
         # deja un valor predeterminado que corresponde a 5
         self.ui.magnitud_edit.setText("5")
+        # cargamos los archivos con las soluciones
+        ruta = os.getcwd()
+        self.soluciones_cmt = ruta + "/datos/cmt.csv"
+        self.soluciones = pd.read_csv(self.soluciones_cmt)
+        # transformamos los strings a fechas
+        self.soluciones['fecha_evento'] = pd.to_datetime(
+            self.soluciones['fecha_evento'])
+        self.soluciones['fecha_evento'] = self.soluciones[
+            'fecha_evento'].dt.date
+        # print(type(self.soluciones['fecha_evento']))
+        # print(type(self.soluciones['fecha_evento'][0].dt.date))
 
     # realizamos una llamada al metodo descargar_datos datos, cuando se
     # seleeciona un elemento en la lista, previamente cargados por
@@ -77,11 +91,41 @@ class DescargaDatos(QtGui.QDialog):
         fecha_termino = temp_var.toPyDate()
         magnitud = int(self.ui.magnitud_edit.text())
         self.datos = f.pedir_datos(fecha_inicio, fecha_termino, magnitud)
-        print(self.datos)
+
+        # filtramos los resultados por las fechas
+        soluciones_fechas = self.soluciones[
+            fecha_inicio < self.soluciones.fecha_evento]
+        soluciones_fechas = soluciones_fechas[
+            soluciones_fechas.fecha_evento < fecha_termino]
+        soluciones_fechas["lat_cmt"] = np.around(
+            soluciones_fechas["lat_cmt"], decimals=2)
+        soluciones_fechas["lon_cmt"] = np.around(
+            soluciones_fechas["lon_cmt"], decimals=2)
+        # np.around([0.37, 1.64], decimals=1)
+        # print(consulta)
+        # soluciones_fechas = self.soluciones.query(consulta)
+        # print(soluciones_fechas.columns)
+        # print(soluciones_fechas["lat_cmt"],soluciones_fechas["lon_cmt"])
+        # print()
+
         for element in self.datos:
-            string = element["event_descriptions"][0].text + \
-                " " + str(element.preferred_magnitude()["mag"])
-            self.ui.descargar_listWidget.addItem(string)
+            print("datos")
+            origen = element.origins
+            lat_e = np.around(origen[0].latitude, decimals=2)
+            lon_e = np.around(origen[0].longitude, decimals=2)
+            print("lat ", lat_e,"lon ", lon_e)
+            
+            ### debo comprobar que este presente
+
+
+
+
+            if(lat_e in soluciones_fechas["lat_cmt"]):
+                print("añadiendo")
+                # print(string)
+                string = element["event_descriptions"][0].text + \
+                    " " + str(element.preferred_magnitude()["mag"])
+                self.ui.descargar_listWidget.addItem(string)
         self.ui.descargar_listWidget.currentItemChanged.connect(
             self.print_info)
         # clickeado = self.ui.descargar_listWidget.itemClicked.connect(self.ui.descargar_listWidget.listClicked)
@@ -206,7 +250,7 @@ class MainWindow(QtGui.QMainWindow):
         # la funcion, de otra manera, nos indicara que debemos cargar los
         # archivos
 
-    def periodo_P(self):    
+    def periodo_P(self):
         # print(self.file_waveforms, self.estaciones)
         if(type(self.waveforms) is type(" ") or type(self.estaciones) is type(" ")):
             QtGui.QMessageBox.information(
@@ -232,13 +276,16 @@ class MainWindow(QtGui.QMainWindow):
                 self, "Error ", "Primero cargue los datos")
 
     def graficar_mapa(self):
-        ruta=os.getcwd() +"/interfaz/estaciones.png"
+        ruta = os.getcwd() + "/interfaz/estaciones.png"
         if self.file_estaciones:
-            f.mapa(self.file_estaciones,ruta)
+            f.mapa(self.file_estaciones, ruta)
         else:
-            QtGui.QMessageBox.information(self, "Error ", "Cargue waveforms y stations del evento")
+            QtGui.QMessageBox.information(
+                self, "Error ", "Cargue waveforms y stations del evento")
 
 # clase definida, para definir un lugar donde se pueda graficar en la interfaz
+
+
 class PlotCanvas(FigureCanvas):
 
     def __init__(self, parent=None, width=5, height=4, dpi=100):
