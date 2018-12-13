@@ -3,7 +3,7 @@ import obspy
 import os
 import webbrowser
 import pandas as pd 
-
+import numpy as np
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
@@ -22,13 +22,18 @@ from obspy.taup.tau import TauPyModel
 # disponibles a descargar, datos una fecha de inicio, una fecha de termino
 # y una magnitud
 
-# def pedir_datos(t1,t2):
+def pedir_datos(csv,t1,t2):
+    soluciones_fechas = csv[t1 < csv.fecha_evento]
+    soluciones_fechas = soluciones_fechas[soluciones_fechas.fecha_evento < t2]
+    soluciones_fechas["lat_cmt"] = np.around(soluciones_fechas["lat_cmt"], decimals=2)
+    soluciones_fechas["lon_cmt"] = np.around(soluciones_fechas["lon_cmt"], decimals=2)
+    return soluciones_fechas
 
 
-def pedir_datos(t1, t2, magnitud):
-    client = Client("IRIS")
-    cat = client.get_events(starttime=t1, endtime=t2, minmagnitude=magnitud)
-    return cat
+# def pedir_datos(t1, t2, magnitud):
+#     client = Client("IRIS")
+#     cat = client.get_events(starttime=t1, endtime=t2, minmagnitude=magnitud)
+#     return cat
 
 # dado un indice, y un array de waveforms, seleecionamos un evento para
 # ser descargados, donde de los eventos, descargamos las estaciones y las
@@ -37,18 +42,21 @@ def pedir_datos(t1, t2, magnitud):
 # datos
 
 
-def descargar_datos(cat, numero):
+def descargar_datos(cat):
     client = Client("IRIS")
-    evento = cat[numero]
-    nombre_evento = evento.event_descriptions[0].text
-    origen = cat[numero].origins
-    fecha_evento = str(origen[0].time.year) + "-" + \
-        str(origen[0].time.month) + "-" + str(origen[0].time.day)
-    nombre_evento = nombre_evento + fecha_evento
-    lat_e = origen[0].latitude
-    lon_e = origen[0].longitude
-    time = origen[0].time
-    depth = origen[0].depth
+    nombre_evento = cat["region"].values[0]
+    fecha_evento = cat["fecha_evento"].values[0]
+    nombre_evento = str(nombre_evento + str(fecha_evento))
+    lat_e = float(cat["lat_cmt"])
+    lon_e = float(cat["lon_cmt"])
+    time = cat["tiempo_cmt"].values[0]
+    print("f: ",fecha_evento)
+    print("t: ",time)
+    time = str(fecha_evento) +"T" + time
+    print(time)
+    time = UTCDateTime(time)
+    depth = float(cat["depth_cmt"])
+    # print(nombre_evento,lat_e,lon_e,time,depth)
     radiomin = 50.0
     radiomax = 90.0
     domain = CircularDomain(latitude=lat_e, longitude=lon_e,

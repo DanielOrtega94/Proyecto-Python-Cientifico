@@ -63,6 +63,7 @@ class DescargaDatos(QtGui.QDialog):
             self.soluciones['fecha_evento'])
         self.soluciones['fecha_evento'] = self.soluciones[
             'fecha_evento'].dt.date
+
         # print(type(self.soluciones['fecha_evento']))
         # print(type(self.soluciones['fecha_evento'][0].dt.date))
 
@@ -72,13 +73,15 @@ class DescargaDatos(QtGui.QDialog):
     def print_info(self):
         numero = self.ui.descargar_listWidget.row(
             self.ui.descargar_listWidget.currentItem())
-        try:
-            f.descargar_datos(self.datos, numero)
-            QtGui.QMessageBox.information(
+        # try:
+            # print(self.a_mostrar[numero])
+        resultados=self.soluciones[self.soluciones["Unnamed: 0"] == numero]
+        f.descargar_datos(resultados)
+        QtGui.QMessageBox.information(
                 self, " ", "Datos descargados exitosamente")
-        except:
-            QtGui.QMessageBox.information(
-                self, " ", "No se encontraron registros para los datos seleccionados")
+        # except:
+            # QtGui.QMessageBox.information(
+                # self, " ", "No se encontraron registros para los datos seleccionados")
 
         self.done(0)
 
@@ -90,58 +93,17 @@ class DescargaDatos(QtGui.QDialog):
         temp_var = self.ui.fecha_termino_edit.date()
         fecha_termino = temp_var.toPyDate()
         magnitud = int(self.ui.magnitud_edit.text())
-        self.datos = f.pedir_datos(fecha_inicio, fecha_termino, magnitud)
-        print(self.datos)
 
-        # filtramos los resultados por las fechas
-        soluciones_fechas = self.soluciones[
-            fecha_inicio < self.soluciones.fecha_evento]
-        soluciones_fechas = soluciones_fechas[
-            soluciones_fechas.fecha_evento < fecha_termino]
-        soluciones_fechas["lat_cmt"] = np.around(
-            soluciones_fechas["lat_cmt"], decimals=2)
-        soluciones_fechas["lon_cmt"] = np.around(
-            soluciones_fechas["lon_cmt"], decimals=2)
-        # np.around([0.37, 1.64], decimals=1)
-        # print(consulta)
-        # soluciones_fechas = self.soluciones.query(consulta)
-        # print(soluciones_fechas.columns)
-        # print(soluciones_fechas["lat_cmt"],soluciones_fechas["lon_cmt"])
-        # print()
-        # print("soluciones cmt")
-        print(soluciones_fechas["region"],soluciones_fechas["Mw_cmt"])
-        # print(soluciones_fechas["region"],)
-        a_mostrar = []
-        for element in self.datos:
-            # origen = element.origins
-            nombre_evento = element["event_descriptions"][
-                0].text.upper().strip()
-            # soluciones_fechas["region"]
-            print("nombre evento: ", nombre_evento)
-            for nombre in soluciones_fechas["region"]:
-                nombre = nombre.upper().strip()
-                # print(nombre, nombre_evento[0:23], nombre_evento.count(nombre,0,23))
-                if (nombre_evento.count(nombre) == 1):
-                    
-                    string = element["event_descriptions"][0].text + " " + str(element.preferred_magnitude()["mag"])
-                    a_mostrar.append(string)
-                    # print("encontrado")
-                #     print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            # lat_e = np.around(origen[0].latitude, decimals=2)
-            # lon_e = np.around(origen[0].longitude, decimals=2)
-            # print("lat ", lat_e, "lon ", lon_e)
-        a_mostrar = list(set(a_mostrar))
-        for string in a_mostrar:
+        self.datos = f.pedir_datos(
+            self.soluciones, fecha_inicio, fecha_termino)
+        # print(self.datos)
+        self.a_mostrar = []
+        # print(self.datos.columns)
+        for i,region, mw, lat, lon in zip(self.datos["Unnamed: 0"],self.datos["region"], self.datos["Mw_cmt"], self.datos["lat_cmt"], self.datos["lon_cmt"]):
+            mw = np.around(mw,2)
+            string = str(i) + " " + str(region) + "  Mw: " + str(mw) 
+            self.a_mostrar.append(i)
             self.ui.descargar_listWidget.addItem(string)
-
-            # debo comprobar que este presente
-
-            # if(lat_e in soluciones_fechas["lat_cmt"]):
-            #     print("añadiendo")
-            #     # print(string)
-            #     string = element["event_descriptions"][0].text + \
-            #         " " + str(element.preferred_magnitude()["mag"])
-        # self.ui.descargar_listWidget.addItem(string)
         self.ui.descargar_listWidget.currentItemChanged.connect(
             self.print_info)
         # clickeado = self.ui.descargar_listWidget.itemClicked.connect(self.ui.descargar_listWidget.listClicked)
