@@ -8,7 +8,7 @@ from PyQt5.QtCore import QObject
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.uic import *
 from pyqtgraph import QtGui
-# from PyQt5.QtCore import QDate, QTime, QDateTime, Qt
+from PyQt5.QtCore import QDate, QTime, QDateTime, Qt
 import funciones as f
 # import matplotlib as plt
 import matplotlib.pyplot as plt
@@ -91,6 +91,7 @@ class DescargaDatos(QtGui.QDialog):
         fecha_termino = temp_var.toPyDate()
         magnitud = int(self.ui.magnitud_edit.text())
         self.datos = f.pedir_datos(fecha_inicio, fecha_termino, magnitud)
+        print(self.datos)
 
         # filtramos los resultados por las fechas
         soluciones_fechas = self.soluciones[
@@ -107,25 +108,40 @@ class DescargaDatos(QtGui.QDialog):
         # print(soluciones_fechas.columns)
         # print(soluciones_fechas["lat_cmt"],soluciones_fechas["lon_cmt"])
         # print()
-
+        # print("soluciones cmt")
+        print(soluciones_fechas["region"],soluciones_fechas["Mw_cmt"])
+        # print(soluciones_fechas["region"],)
+        a_mostrar = []
         for element in self.datos:
-            print("datos")
-            origen = element.origins
-            lat_e = np.around(origen[0].latitude, decimals=2)
-            lon_e = np.around(origen[0].longitude, decimals=2)
-            print("lat ", lat_e,"lon ", lon_e)
-            
-            ### debo comprobar que este presente
+            # origen = element.origins
+            nombre_evento = element["event_descriptions"][
+                0].text.upper().strip()
+            # soluciones_fechas["region"]
+            print("nombre evento: ", nombre_evento)
+            for nombre in soluciones_fechas["region"]:
+                nombre = nombre.upper().strip()
+                # print(nombre, nombre_evento[0:23], nombre_evento.count(nombre,0,23))
+                if (nombre_evento.count(nombre) == 1):
+                    
+                    string = element["event_descriptions"][0].text + " " + str(element.preferred_magnitude()["mag"])
+                    a_mostrar.append(string)
+                    # print("encontrado")
+                #     print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            # lat_e = np.around(origen[0].latitude, decimals=2)
+            # lon_e = np.around(origen[0].longitude, decimals=2)
+            # print("lat ", lat_e, "lon ", lon_e)
+        a_mostrar = list(set(a_mostrar))
+        for string in a_mostrar:
+            self.ui.descargar_listWidget.addItem(string)
 
+            # debo comprobar que este presente
 
-
-
-            if(lat_e in soluciones_fechas["lat_cmt"]):
-                print("añadiendo")
-                # print(string)
-                string = element["event_descriptions"][0].text + \
-                    " " + str(element.preferred_magnitude()["mag"])
-                self.ui.descargar_listWidget.addItem(string)
+            # if(lat_e in soluciones_fechas["lat_cmt"]):
+            #     print("añadiendo")
+            #     # print(string)
+            #     string = element["event_descriptions"][0].text + \
+            #         " " + str(element.preferred_magnitude()["mag"])
+        # self.ui.descargar_listWidget.addItem(string)
         self.ui.descargar_listWidget.currentItemChanged.connect(
             self.print_info)
         # clickeado = self.ui.descargar_listWidget.itemClicked.connect(self.ui.descargar_listWidget.listClicked)

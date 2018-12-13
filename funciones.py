@@ -2,7 +2,6 @@ import folium
 import obspy
 import os
 import webbrowser
-import pandas as pd 
 
 from PyQt5 import QtCore
 from PyQt5 import QtGui
@@ -21,8 +20,6 @@ from obspy.taup.tau import TauPyModel
 # funcion encargada de retonar el nombre de los datos, que se encuentran
 # disponibles a descargar, datos una fecha de inicio, una fecha de termino
 # y una magnitud
-
-# def pedir_datos(t1,t2):
 
 
 def pedir_datos(t1, t2, magnitud):

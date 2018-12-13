@@ -2,6 +2,7 @@
 from obspy import UTCDateTime
 import pandas as pd
 import os
+import numpy as np
 # elegir primera fecha de todas
 fecha = "2018/01/01 "
 # la ultima fecha es:
@@ -33,7 +34,8 @@ rake1 = []
 strike2 = []
 dip2 = []
 rake2 = []
-
+region = []
+Mw_cmt= []
 # donde se guardara toda la data
 data_evento = []
 archivo = 'enero-2018.txt'
@@ -88,6 +90,7 @@ while UTCfecha != UTCDateTime(fecha_last) + 3600 * 24:
             lat_cmt.append(fil1[27:33].replace(" ", ""))
             lon_cmt.append(fil1[34:41].replace(" ", ""))
             depth_cmt.append(fil1[42:47].replace(" ", ""))
+            region.append(fil1[56:].replace("\n",""))
             # relevante fila 2:
             name_cmt.append(fil2[0:16].replace(" ", ""))
             # relevante fila 3: nada jeje
@@ -111,6 +114,7 @@ while UTCfecha != UTCDateTime(fecha_last) + 3600 * 24:
             data5 = fil5.split(" ")
             data5 = [x for x in data5 if x]
             mo.append(data5[10])
+            Mw_cmt.append( np.round (2./3*(np.log10( float(data5[10])*10**float(data4[0])) - 16.1)  , 1))
             strike1.append(data5[11])
             dip1.append(data5[12])
             rake1.append(data5[13])
@@ -122,10 +126,10 @@ while UTCfecha != UTCDateTime(fecha_last) + 3600 * 24:
     fecha = str(UTCfecha).replace('-', '/').split('T')[0]
 
 
-datos = pd.DataFrame({'fecha_evento': fechas, 'tiempo_cmt': time_cmt, 'lat_cmt': lat_cmt, 'lon_cmt': lon_cmt, 'depth_cmt': depth_cmt, 'id_evento': name_cmt, 'exp_cmt': exp_cmt, 'Mrr': Mrr, 'Mtt': Mtt, 'Mpp': Mpp,
+datos = pd.DataFrame({'fecha_evento': fechas, 'tiempo_cmt': time_cmt, 'region': region, 'lat_cmt': lat_cmt, 'lon_cmt': lon_cmt, 'depth_cmt': depth_cmt, 'id_evento': name_cmt, 'exp_cmt': exp_cmt, 'Mrr': Mrr, 'Mtt': Mtt, 'Mpp': Mpp,
                       'Mrt': Mrt, 'Mrp': Mrp, 'Mtp': Mtp, 'Err': Err, 'Ett': Ett, 'Epp': Epp,
                       'Ert': Ert, 'Erp': Erp, 'Etp': Etp,
                       'momento_sismico': mo, 'strike_1': strike1, 'dip_1': dip1,
-                      'rake_1': rake1, 'strike_2': strike2, 'dip_2': dip2, 'rake_2': rake2})
+                      'rake_1': rake1, 'strike_2': strike2, 'dip_2': dip2, 'rake_2': rake2, 'Mw_cmt': Mw_cmt})
 
 datos.to_csv(nombre, mode='a')
