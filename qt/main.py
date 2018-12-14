@@ -96,6 +96,10 @@ class DescargaDatos(QtGui.QDialog):
 
         self.datos = f.pedir_datos(
             self.soluciones, fecha_inicio, fecha_termino)
+        if(len(self.datos) == 0 ):
+            QtGui.QMessageBox.information(
+                self, " ", "Busqueda no ha arrojado resultados")
+
         # print(self.datos)
         self.a_mostrar = []
         # print(self.datos.columns)
