@@ -57,7 +57,7 @@ class DescargaDatos(QtGui.QDialog):
         # cargamos los archivos con las soluciones
         ruta = os.getcwd()
         self.soluciones_cmt = ruta + "/datos/cmt.csv"
-        self.soluciones = pd.read_csv(self.soluciones_cmt)
+        self.soluciones = pd.read_csv(self.soluciones_cmt,low_memory=False)
         # transformamos los strings a fechas
         self.soluciones['fecha_evento'] = pd.to_datetime(
             self.soluciones['fecha_evento'])

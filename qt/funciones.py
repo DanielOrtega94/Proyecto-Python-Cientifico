@@ -52,6 +52,7 @@ def descargar_datos(cat):
     time = cat["tiempo_cmt"].values[0]
     print("f: ",fecha_evento)
     print("t: ",time)
+    
     time = str(fecha_evento) +"T" + time
     print(time)
     time = UTCDateTime(time)

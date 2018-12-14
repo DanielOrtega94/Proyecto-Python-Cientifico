@@ -1,4 +1,3 @@
-
 from obspy import UTCDateTime
 import pandas as pd
 import os
@@ -6,7 +5,7 @@ import numpy as np
 # elegir primera fecha de todas
 fecha = "2018/01/01 "
 # la ultima fecha es:
-fecha_last = "2018/01/31"
+fecha_last = "2017/12/31"
 UTCfecha = UTCDateTime(fecha)
 fechas = []
 time_cmt = []
@@ -38,7 +37,7 @@ region = []
 Mw_cmt= []
 # donde se guardara toda la data
 data_evento = []
-archivo = 'enero-2018.txt'
+archivo = 'cmt.txt'
 nombre = 'cmt' + archivo.replace(".txt", "") + ".csv"
 df = pd.DataFrame()
 # fechas.append(fecha)
@@ -90,7 +89,7 @@ while UTCfecha != UTCDateTime(fecha_last) + 3600 * 24:
             lat_cmt.append(fil1[27:33].replace(" ", ""))
             lon_cmt.append(fil1[34:41].replace(" ", ""))
             depth_cmt.append(fil1[42:47].replace(" ", ""))
-            region.append(fil1[56:].replace("\n",""))
+            region.append(fil1[56:].replace("\n","").replace('"', ''))
             # relevante fila 2:
             name_cmt.append(fil2[0:16].replace(" ", ""))
             # relevante fila 3: nada jeje
