@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>567</width>
-    <height>456</height>
+    <width>522</width>
+    <height>595</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>210</y>
+     <y>320</y>
      <width>101</width>
      <height>16</height>
     </rect>
@@ -39,96 +39,203 @@
     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; font-weight:600;&quot;&gt;Ingreso Datos&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
-  <widget class="QLabel" name="fi_label">
-   <property name="geometry">
-    <rect>
-     <x>26</x>
-     <y>90</y>
-     <width>61</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Fecha Inicio</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="ft_label">
-   <property name="geometry">
-    <rect>
-     <x>26</x>
-     <y>130</y>
-     <width>71</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Fecha Termino</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>170</y>
-     <width>47</width>
-     <height>13</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Magnitud</string>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="magnitud_edit">
-   <property name="geometry">
-    <rect>
-     <x>140</x>
-     <y>170</y>
-     <width>113</width>
-     <height>20</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QPushButton" name="datos_Button">
    <property name="geometry">
     <rect>
-     <x>280</x>
-     <y>170</y>
+     <x>210</x>
+     <y>310</y>
      <width>101</width>
      <height>21</height>
     </rect>
    </property>
    <property name="text">
-    <string>Ok</string>
-   </property>
-  </widget>
-  <widget class="QDateEdit" name="fecha_inicio_edit">
-   <property name="geometry">
-    <rect>
-     <x>140</x>
-     <y>90</y>
-     <width>110</width>
-     <height>22</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QDateEdit" name="fecha_termino_edit">
-   <property name="geometry">
-    <rect>
-     <x>140</x>
-     <y>130</y>
-     <width>110</width>
-     <height>22</height>
-    </rect>
+    <string>Buscar</string>
    </property>
   </widget>
   <widget class="QListWidget" name="descargar_listWidget">
    <property name="geometry">
     <rect>
-     <x>120</x>
-     <y>210</y>
+     <x>40</x>
+     <y>350</y>
      <width>256</width>
      <height>192</height>
     </rect>
+   </property>
+  </widget>
+  <widget class="QWidget" name="verticalLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>340</x>
+     <y>80</y>
+     <width>121</width>
+     <height>80</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QLineEdit" name="radiomin_Edit"/>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="radiomax_lineEdit"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="verticalLayoutWidget_2">
+   <property name="geometry">
+    <rect>
+     <x>120</x>
+     <y>80</y>
+     <width>91</width>
+     <height>80</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <item>
+     <widget class="QDateEdit" name="fecha_inicio_edit"/>
+    </item>
+    <item>
+     <widget class="QDateEdit" name="fecha_termino_edit"/>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="magnitud_edit"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="verticalLayoutWidget_3">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>80</y>
+     <width>81</width>
+     <height>80</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_3">
+    <item>
+     <widget class="QLabel" name="fi_label">
+      <property name="text">
+       <string>Fecha Inicio</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="ft_label">
+      <property name="text">
+       <string>Fecha Termino</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Magnitud</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="verticalLayoutWidget_4">
+   <property name="geometry">
+    <rect>
+     <x>250</x>
+     <y>80</y>
+     <width>71</width>
+     <height>80</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_4">
+    <item>
+     <widget class="QLabel" name="fi_label_2">
+      <property name="text">
+       <string>Radio min(°)</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="fi_label_3">
+      <property name="text">
+       <string>Radio max(°)</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="verticalLayoutWidget_5">
+   <property name="geometry">
+    <rect>
+     <x>120</x>
+     <y>190</y>
+     <width>101</width>
+     <height>80</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_5">
+    <item>
+     <widget class="QLineEdit" name="start_time_lineEdit"/>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="end_time_lineEdit"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="verticalLayoutWidget_6">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>190</y>
+     <width>88</width>
+     <height>80</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_6">
+    <item>
+     <widget class="QLabel" name="ft_label_2">
+      <property name="text">
+       <string>Segundos antes</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="ft_label_3">
+      <property name="text">
+       <string>Segundo Despues</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="verticalLayoutWidget_9">
+   <property name="geometry">
+    <rect>
+     <x>240</x>
+     <y>190</y>
+     <width>131</width>
+     <height>80</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_9"/>
+  </widget>
+  <widget class="QLineEdit" name="dist_esta_lineEdit">
+   <property name="geometry">
+    <rect>
+     <x>340</x>
+     <y>230</y>
+     <width>111</width>
+     <height>20</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="fi_label_6">
+   <property name="geometry">
+    <rect>
+     <x>240</x>
+     <y>160</y>
+     <width>129</width>
+     <height>78</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Distancia estacion min:(M)</string>
    </property>
   </widget>
  </widget>

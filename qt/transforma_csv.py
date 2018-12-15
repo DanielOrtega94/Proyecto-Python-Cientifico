@@ -89,7 +89,7 @@ while UTCfecha != UTCDateTime(fecha_last) + 3600 * 24:
             lat_cmt.append(fil1[27:33].replace(" ", ""))
             lon_cmt.append(fil1[34:41].replace(" ", ""))
             depth_cmt.append(fil1[42:47].replace(" ", ""))
-            region.append(fil1[56:].replace("\n","").replace('"', ''))
+            region.append(fil1[56:].replace("\n","").replace('"', '').replace(" ",""))
             # relevante fila 2:
             name_cmt.append(fil2[0:16].replace(" ", ""))
             # relevante fila 3: nada jeje

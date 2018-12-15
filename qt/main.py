@@ -44,25 +44,32 @@ class DescargaDatos(QtGui.QDialog):
     # a los metodos
 
     def __init__(self):
+
         super(DescargaDatos, self).__init__()
+        os.chdir(ruta_principal)
         self.ui = loadUi('interfaz/descarga_datos.ui', self)
-        fecha = QtCore.QDate.currentDate()
+
+        ultimo = soluciones_cmt.shape[0] - 1
+
         # dejamos un valor predeterminado, que corresponde a la fecha actual
-        self.ui.fecha_termino_edit.setDate(fecha)
-        self.ui.fecha_inicio_edit.setDate(fecha)
+        self.ui.fecha_inicio_edit.setDate(soluciones_cmt['fecha_evento'][0])
+        self.ui.fecha_termino_edit.setDate(
+            soluciones_cmt['fecha_evento'][ultimo])
         # al pinchar el boton se ejecuta el meotodos
         self.datos_Button.clicked.connect(self.enviar_datos)
+        
+        # self.listWidget.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
         # deja un valor predeterminado que corresponde a 5
         self.ui.magnitud_edit.setText("5")
-        # cargamos los archivos con las soluciones
-        ruta = os.getcwd()
-        self.soluciones_cmt = ruta + "/datos/cmt.csv"
-        self.soluciones = pd.read_csv(self.soluciones_cmt,low_memory=False)
+        self.ui.radiomin_Edit.setText("50")
+        self.ui.radiomax_lineEdit.setText("90")
+        self.ui.start_time_lineEdit.setText("60")
+        self.ui.end_time_lineEdit.setText("3600")
+        self.ui.dist_esta_lineEdit.setText("1000")
+
+    
+
         # transformamos los strings a fechas
-        self.soluciones['fecha_evento'] = pd.to_datetime(
-            self.soluciones['fecha_evento'])
-        self.soluciones['fecha_evento'] = self.soluciones[
-            'fecha_evento'].dt.date
 
         # print(type(self.soluciones['fecha_evento']))
         # print(type(self.soluciones['fecha_evento'][0].dt.date))
@@ -71,41 +78,43 @@ class DescargaDatos(QtGui.QDialog):
     # seleeciona un elemento en la lista, previamente cargados por
     # enviar_datos
     def print_info(self):
+
         numero = self.ui.descargar_listWidget.row(
-            self.ui.descargar_listWidget.currentItem())
-        # try:
-            # print(self.a_mostrar[numero])
-        resultados=self.soluciones[self.soluciones["Unnamed: 0"] == numero]
-        f.descargar_datos(resultados)
-        QtGui.QMessageBox.information(
-                self, " ", "Datos descargados exitosamente")
+            self.ui.descargar_listWidget.currentItem()) 
+        numero  = self.a_mostrar[numero]
+        # try:s
+        # print(self.a_mostrar[numero])
+        resultados = soluciones_cmt[soluciones_cmt["Unnamed: 0"] == numero]
+        codigo= f.descargar_datos(resultados,0,0)
+        if (codigo == -100):
+            QtGui.QMessageBox.information(self, "Error", "Datos descargados anteriormente")
+        else:
+            QtGui.QMessageBox.information(self, "Exito", "Datos descargados exitosamente")
         # except:
-            # QtGui.QMessageBox.information(
-                # self, " ", "No se encontraron registros para los datos seleccionados")
+        # QtGui.QMessageBox.information(
+        # self, " ", "No se encontraron registros para los datos
+        # seleccionados")
 
         self.done(0)
 
     # llamamos al metodo enviar_datos, para descargar la informacion asociado
     # a los datos y cargarlos en una lista, para luego poder ser seleecionados
     def enviar_datos(self):
+        self.ui.descargar_listWidget.clear()
         temp_var = self.ui.fecha_inicio_edit.date()
         fecha_inicio = temp_var.toPyDate()
         temp_var = self.ui.fecha_termino_edit.date()
         fecha_termino = temp_var.toPyDate()
         magnitud = int(self.ui.magnitud_edit.text())
 
-        self.datos = f.pedir_datos(
-            self.soluciones, fecha_inicio, fecha_termino)
-        if(len(self.datos) == 0 ):
+        self.datos = f.pedir_datos(soluciones_cmt, fecha_inicio, fecha_termino)
+        if(len(self.datos) == 0):
             QtGui.QMessageBox.information(
                 self, " ", "Busqueda no ha arrojado resultados")
-
-        # print(self.datos)
         self.a_mostrar = []
-        # print(self.datos.columns)
-        for i,region, mw, lat, lon in zip(self.datos["Unnamed: 0"],self.datos["region"], self.datos["Mw_cmt"], self.datos["lat_cmt"], self.datos["lon_cmt"]):
-            mw = np.around(mw,2)
-            string = str(i) + " " + str(region) + "  Mw: " + str(mw) 
+        for i, region, mw, lat, lon in zip(self.datos["Unnamed: 0"], self.datos["region"], self.datos["Mw_cmt"], self.datos["lat_cmt"], self.datos["lon_cmt"]):
+            mw = np.around(mw, 2)
+            string = str(region) + "  Mw: " + str(mw)
             self.a_mostrar.append(i)
             self.ui.descargar_listWidget.addItem(string)
         self.ui.descargar_listWidget.currentItemChanged.connect(
@@ -156,8 +165,35 @@ class MainWindow(QtGui.QMainWindow):
         self.remover_respuesta_Button.clicked.connect(self.remover_respuesta)
         self.filtrar_ondap_Button.clicked.connect(self.remover_respuesta)
         self.graficar_Button.clicked.connect(self.executeSeleccionarDatos)
+        self.limpiar_datos_pushButton.clicked.connect(self.limpiar_valores)
+        self.guardar_cambios_pushButton.clicked.connect(self.limpiar_valores)
+        self.sismograma_pushButton.clicked.connect(self.sismograma_sintetico)
+        self.pick_pushButton.clicked.connect(self.pick)
         self.waveforms = ""
         self.estaciones = ""
+
+    def sismograma_sintetico(self):
+        tipo = "basico"
+        self.sismograma_sintetico = f.generar_sintetico(tipo,self.ruta_info,soluciones_cmt,self.bulk)
+
+    def pick(self):
+        print("asd")
+
+
+    def limpiar_valores(self):
+        self.waveforms = ""
+        self.estaciones = ""
+        self.file_estaciones = ""
+        self.estaciones = ""
+        self.file_waveforms = ""
+        self.waveforms = ""
+        self.bulk = ""
+        self.sismograma_sintetico = ""
+        QtGui.QMessageBox.information(self, "Exito ", "Datos limpiados correctamente")
+
+    def guardar_cambios(self):
+        
+        QtGui.QMessageBox.information(self, "Exito ", "Datos guardados correctamente")        
 
         # metodo que llama a un instancia de DescargaDatos, y muestra la
         # pantalla, la ejecuccion del metodo exec_(), permite retonar valores
@@ -188,9 +224,11 @@ class MainWindow(QtGui.QMainWindow):
     def path_estaciones(self):
         self.file_estaciones = str(QtGui.QFileDialog.getExistingDirectory(
             self, "Seleccione estaciones"))
+        self.ruta_info = self.file_estaciones.replace("/stations","")
+
         if self.file_estaciones:
-            self.estaciones = f.cargar_stations(self.file_estaciones)
-            # print(self.estaciones)
+            self.estaciones,self.bulk,self.fallas= f.cargar_stations(self.file_estaciones,soluciones_cmt,self.ruta_info)
+            
             if(np.size(self.estaciones) == 0):
                 QtGui.QMessageBox.information(
                     self, "Error ", "Seleecione carpeta estaciones")
@@ -205,7 +243,7 @@ class MainWindow(QtGui.QMainWindow):
             self, "Seleccione waveforms"))
         if self.file_waveforms:
             # print(self.file_estaciones)
-            self.waveforms = f.cargar_waveforms(self.file_waveforms)
+            self.waveforms = f.cargar_waveforms(self.file_waveforms,self.fallas)
             # print(self.waveforms)
             if(np.size(self.waveforms) == 0):
                 QtGui.QMessageBox.information(
@@ -223,8 +261,7 @@ class MainWindow(QtGui.QMainWindow):
             QtGui.QMessageBox.information(
                 self, "Error ", "Primero cargue los datos")
         else:
-            f.remover_respuesta(self.file_waveforms,
-                                self.estaciones, self.waveforms)
+            self.waveforms = f.remover_respuesta(self.waveforms,self.estaciones)
             QtGui.QMessageBox.information(
                 self, "Exito", "Operacion realizada correctamente")
         # funcion que realiza los checks necesarios para llamar al metodo
@@ -232,14 +269,14 @@ class MainWindow(QtGui.QMainWindow):
         # la funcion, de otra manera, nos indicara que debemos cargar los
         # archivos
 
-    def periodo_P(self):
+    def periodo(self):
         # print(self.file_waveforms, self.estaciones)
         if(type(self.waveforms) is type(" ") or type(self.estaciones) is type(" ")):
             QtGui.QMessageBox.information(
                 self, "Error ", "Primero cargue los datos")
         else:
-            f.filtro_periodo_P(self.file_waveforms,
-                               self.estaciones, self.waveforms)
+            tipo = "bandpass"
+            self.waveforms = f.filtro(tipo,self.waveforms)
             QtGui.QMessageBox.information(
                 self, "Exito", "Operacion realizada correctamente")
 
@@ -293,6 +330,11 @@ class PlotCanvas(FigureCanvas):
 
 
 # llama a la ejecuccion de la ventana principal dando inicio a la aplicaicon
+ruta_principal = os.getcwd()
+ruta_soluciones = ruta_principal + "/datos/cmt.csv"
+soluciones_cmt = pd.read_csv(ruta_soluciones, low_memory=False)
+soluciones_cmt['fecha_evento'] = pd.to_datetime(soluciones_cmt['fecha_evento'])
+soluciones_cmt['fecha_evento'] = soluciones_cmt['fecha_evento'].dt.date
 app = QtGui.QApplication(sys.argv)
 widget = MainWindow()
 widget.show()

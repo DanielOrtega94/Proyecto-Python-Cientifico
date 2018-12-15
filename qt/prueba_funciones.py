@@ -23,14 +23,14 @@ os.chdir(directorio)
 # print(type(archivos))
 # print(archivos)
 
-for resp in archivos:
+# for resp in archivos:
     
-    inv = read_inventory(str(resp))
-    nombre  = resp.replace(".xml","")
-    print(nombre)
-    print(inv[0][0].__dict__["_latitude"],inv[0][0].__dict__["_longitude"])
+#     inv = read_inventory(str(resp))
+#     nombre  = resp.replace(".xml","")
+#     print(nombre)
+#     print(inv[0][0].__dict__["_latitude"],inv[0][0].__dict__["_longitude"])
 
-    break
+#     break
 
 
 #####################################
