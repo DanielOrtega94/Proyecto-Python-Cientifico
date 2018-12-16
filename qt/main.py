@@ -1,5 +1,4 @@
 import os
-import sys
 from PyQt5 import *
 from PyQt5 import QtCore
 from PyQt5 import QtGui
@@ -48,19 +47,14 @@ class DescargaDatos(QtGui.QDialog):
         super(DescargaDatos, self).__init__()
         os.chdir(ruta_principal)
         self.ui = loadUi('interfaz/descarga_datos.ui', self)
-
         ultimo = soluciones_cmt.shape[0] - 1
-
         # dejamos un valor predeterminado, que corresponde a la fecha actual
         self.ui.fecha_inicio_edit.setDate(soluciones_cmt['fecha_evento'][0])
         self.ui.fecha_termino_edit.setDate(
             soluciones_cmt['fecha_evento'][ultimo])
         # al pinchar el boton se ejecuta el meotodos
         self.datos_Button.clicked.connect(self.enviar_datos)
-        
-        # self.listWidget.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
-        # deja un valor predeterminado que corresponde a 5
-        self.ui.magnitud_edit.setText("5")
+        self.ui.magnitud_edit.setText("7")
         self.ui.radiomin_Edit.setText("50")
         self.ui.radiomax_lineEdit.setText("90")
         self.ui.start_time_lineEdit.setText("60")
@@ -78,7 +72,6 @@ class DescargaDatos(QtGui.QDialog):
     # seleeciona un elemento en la lista, previamente cargados por
     # enviar_datos
     def print_info(self):
-
         numero = self.ui.descargar_listWidget.row(
             self.ui.descargar_listWidget.currentItem()) 
         numero  = self.a_mostrar[numero]
@@ -106,25 +99,23 @@ class DescargaDatos(QtGui.QDialog):
         temp_var = self.ui.fecha_termino_edit.date()
         fecha_termino = temp_var.toPyDate()
         magnitud = int(self.ui.magnitud_edit.text())
-        self.radiomin = self.ui.radiomin_Edit.setText("50")
-        self.radiomax = self.ui.radiomax_lineEdit.setText("90")
-        self.start_time = self.ui.start_time_lineEdit.setText("60")
-        self.end_time = self.ui.end_time_lineEdit.setText("3600")
-        self.dist_esta = self.ui.dist_esta_lineEdit.setText("1000")
+        self.radiomin = int(self.ui.radiomin_Edit.text())
+        self.radiomax = int(self.ui.radiomax_lineEdit.text())
+        self.start_time = int(self.ui.start_time_lineEdit.text())
+        self.end_time = int(self.ui.end_time_lineEdit.text())
+        self.dist_esta = int(self.ui.dist_esta_lineEdit.text())
 
 
         self.datos = f.pedir_datos(soluciones_cmt, fecha_inicio, fecha_termino,magnitud)
         if(len(self.datos) == 0):
-            QtGui.QMessageBox.information(
-                self, " ", "Busqueda no ha arrojado resultados")
+            QtGui.QMessageBox.information(self, "Error", "Busqueda no ha arrojado resultados")
         self.a_mostrar = []
         for i, region, mw, lat, lon in zip(self.datos["Unnamed: 0"], self.datos["region"], self.datos["Mw_cmt"], self.datos["lat_cmt"], self.datos["lon_cmt"]):
             mw = np.around(mw, 2)
             string = str(region) + "  Mw: " + str(mw)
             self.a_mostrar.append(i)
             self.ui.descargar_listWidget.addItem(string)
-        self.ui.descargar_listWidget.currentItemChanged.connect(
-            self.print_info)
+        self.ui.descargar_listWidget.currentItemChanged.connect(self.print_info)
         # clickeado = self.ui.descargar_listWidget.itemClicked.connect(self.ui.descargar_listWidget.listClicked)
         # print(clickeado)
 
@@ -140,8 +131,8 @@ class SeleccionarDatos(QtGui.QDialog):
         self.ui = loadUi('interfaz/seleccionar.ui', self)
         self.waveforms = waveforms
         for element in self.waveforms:
-            string = element.__dict__["stats"].network + \
-                " " + element.__dict__["stats"].station
+            string = element[0].__dict__["stats"].network + \
+                " " + element[0].__dict__["stats"].station
             self.ui.indice_listWidget.addItem(string)
         self.seleccionar_Button.clicked.connect(self.print_info)
 
@@ -156,25 +147,71 @@ class SeleccionarDatos(QtGui.QDialog):
 
 class RemoverRespuesta(QtGui.QDialog):
 
-    def __init__(self):
+    def __init__(self,wavefoms,stations):
         super(RemoverRespuesta, self).__init__()
+        output = ["DISP","VEL","ACC"]
         self.ui = loadUi('interfaz/remover_respuesta.ui', self)
+        self.waveforms = wavefoms
+        self.estaciones = stations
+        self.ui.prefilter_lineEdit.setText("0.001, 0.005, 10, 20")
+        self.ui.output_comboBox.addItems(output)
+        self.ui.calcular_pushButton.clicked.connect(self.llamada_funcion)
+
+    def llamada_funcion(self):
+        prefilter = str(self.ui.prefilter_lineEdit.text()).split(",")
+        pre_filter = []
+        for element in prefilter:
+            pre_filter.append(float(element))
+        self.output = str(self.ui.output_comboBox.currentText())
+        self.waveforms = f.remover_respuesta(self.waveforms,self.estaciones,pre_filter,self.output)
+        self.done(0)
 
 
 
 class Periodo(QtGui.QDialog):
 
-    def __init__(self):
+    def __init__(self,wavefoms):
         super(Periodo, self).__init__()
-        self.ui = loadUi('interfaz/seleccionar.ui', self)
+        self.ui = loadUi('interfaz/periodo.ui', self)
+        self.ui.frecuencias_lineEdit.setText("0.2")
+        self.ui.lowpass_radioButton.setChecked(True)
+        self.waveforms = wavefoms
+        self.ui.calcular_pushButton.clicked.connect(self.llamada_funcion)
 
+    def llamada_funcion(self):
+        if(self.ui.lowpass_radioButton.isChecked()):
+            tipo = "lowpass"
+            frecu = float(self.ui.frecuencias_lineEdit.text())
+        elif(self.ui.highpass_radioButton.isChecked()):
+            tipo = "highpass"
+            frecu = float(self.ui.frecuencias_lineEdit.text())
+        elif(self.ui.bandpass_radioButton.isChecked()):
+            tipo = "bandpass"
+            frecuen = str(self.ui.frecuencias_lineEdit.text()).split(",")
+            frecu = []
+            for element in frecuen:
+                frecu.append(float(element))
+        self.waveforms = f.filtro(tipo,self.waveforms,frecu)
+        self.done(0)
 
 class SismogramaSintetico(QtGui.QDialog):
 
 
-    def __init__(self):
+    def __init__(self,ruta_info,bulk,output):
         super(SismogramaSintetico, self).__init__()
-        self.ui = loadUi('interfaz/seleccionar.ui', self)
+        self.ui = loadUi('interfaz/sismograma_sintetico.ui', self)
+        self.ui.calcular_pushButton.clicked.connect(self.llamada_funcion)
+        self.ui.starttime_lineEdit.setText("30")
+        self.ui.endtime_lineEdit.setText("30")
+        self.ruta_info =ruta_info
+        self.bulk=bulk
+        self.output=output
+
+    def llamada_funcion(self):
+        self.start = str(self.ui.starttime_lineEdit.text())
+        self.end = str(self.ui.endtime_lineEdit.text())
+        self.sismograma_sintetico,self.parametros_sinteticos = f.generar_sintetico(self.ruta_info,soluciones_cmt,self.bulk,self.output,self.start,self.end)
+        self.done(0)
 
 
 # ventana principal de la aplicacion se define los metodos y el espacio
@@ -193,17 +230,24 @@ class MainWindow(QtGui.QMainWindow):
         self.remover_respuesta_Button.clicked.connect(self.executeRemoverRespuesta)
         self.filtrar_ondap_Button.clicked.connect(self.executePeriodo)
         self.sismograma_pushButton.clicked.connect(self.executeSismogramaSintetico)
-        
         self.cargar_estaciones_Button.clicked.connect(self.carga_datos)
         self.mapa_Button.clicked.connect(self.graficar_mapa)
         self.limpiar_datos_pushButton.clicked.connect(self.limpiar_valores)
         self.guardar_cambios_pushButton.clicked.connect(self.guardar_trabajo)
-        self.pick_pushButton.clicked.connect(self.pick)
+        self.sintetico_pushButton.clicked.connect(self.guardar_sintetico)
+        self.cargar_waveforms_Button.clicked.connect(self.cargar_waveforms)
+        self.cargar_sintetico_Button.clicked.connect(self.cargar_sintetico)
+        self.basemap_pushButton.clicked.connect(self.graficar_basemap)
+        # self.cargar_waveforms_Button.clicked.connect(self.graficar_basemap)
         self.waveforms = ""
         self.estaciones = ""
-    
+
+    def graficar_basemap(self):
+        f.mapa_basemap(soluciones_cmt,self.file_estaciones)
+        print("asd")
 
     def executeDescargaDatos(self):
+        os.chdir(ruta_principal)
         descarga_datos_windows = DescargaDatos()
         descarga_datos_windows.exec_()
         # pasar datos de un dialog a otro
@@ -213,45 +257,79 @@ class MainWindow(QtGui.QMainWindow):
         # pantalla, la ejecuccion del metodo exec_(), permite retonar valores
         # de los dialogos
     def executeSeleccionarDatos(self):
-        if (type(self.waveforms) is not type(" ")):
-            seleccionar_datos_windows = SeleccionarDatos(self.waveforms)
-            seleccionar_datos_windows.exec_()
+        # try:
+        os.chdir(ruta_principal)
+        seleccionar_datos_windows = SeleccionarDatos(self.waveforms)
+        seleccionar_datos_windows.exec_()
             # recibimos valor de qdialog
-            self.indice_array = seleccionar_datos_windows.numero
-            self.graficar(self.indice_array)
-            self.m.plot(self.waveforms[0])
-        else:
-            QtGui.QMessageBox.information(
-                self, "Error ", "Seleecione carpeta waveforms")
+        self.indice_array = seleccionar_datos_windows.numero
+        string = self.waveforms[self.indice_array][0].__dict__["stats"].network + \
+                " " + self.waveforms[self.indice_array][0].__dict__["stats"].station
+        # self.graficar(self.indice_array)
+        self.m.plot(self.waveforms[self.indice_array],string)
+        
+        # except:
+        #     QtGui.QMessageBox.information(
+        #         self, "Error ", "Error al intentar graficar los datos")
 
     def executeRemoverRespuesta(self):
-        remover_respuesta_windows = RemoverRespuesta()
-        remover_respuesta_windows.exec_()
+
+        try:
+            os.chdir(ruta_principal)
+            remover_respuesta_windows = RemoverRespuesta(self.waveforms,self.estaciones)
+            remover_respuesta_windows.exec_()
+            self.waveforms = remover_respuesta_windows.waveforms
+            self.output = remover_respuesta_windows.output
+            QtGui.QMessageBox.information(self, "Exito", "Operacion realizada correctamente")
+        except:
+            QtGui.QMessageBox.information(self, "Error ", "Algo inesperado ha sucedido")
 
     def executePeriodo(self):
-        periodo_windows = Periodo()
-        periodo_windows.exec_()
+        try:
+            os.chdir(ruta_principal)
+            periodo_windows = Periodo(self.waveforms)
+            periodo_windows.exec_()
+            self.waveforms = periodo_windows.waveforms
+            QtGui.QMessageBox.information(self, "Exito", "Operacion realizada correctamente")
+        except:
+            QtGui.QMessageBox.information(self, "Error ", "Algo inesperado ha sucedido")
 
     def executeSismogramaSintetico(self):
-        sismograma_windows = SismogramaSintetico()
-        sismograma_windows.exec_()
+        try:
+            os.chdir(ruta_principal)
+            sismograma_windows = SismogramaSintetico(self.file_estaciones,self.bulk,self.output)
+            sismograma_windows.exec_()
+            self.sismograma_sintetico = sismograma_windows.sismograma_sintetico
+            self.parametros_sinteticos = sismograma_windows.parametros_sinteticos
+            self.tiempo_inicio = sismograma_windows.sismograma_sintetico
+            self.tiempo_termino = sismograma_windows.sismograma_sintetico
+            QtGui.QMessageBox.information(self, "Exito", "Operacion realizada correctamente")
+        except:
+            QtGui.QMessageBox.information(self, "Error ", "Debe ejecutar remover respuesta primero")
 
-    def sismograma_sintetico(self):
-        tipo = "basico"
-        self.sismograma_sintetico = f.generar_sintetico(tipo,self.ruta_info,soluciones_cmt,self.bulk)
-
-    def pick(self):
-        print("asd")
 
     def guardar_trabajo(self):
         ruta_guardar = str(QtGui.QFileDialog.getExistingDirectory(self, "Seleccione estaciones"))
-        # try:
-        f.guardar_trabajo(self.waveforms, self.file_estaciones,ruta_principal,ruta_guardar)
-        QtGui.QMessageBox.information(self, "Exito ", "Datos guardados correctamente")     
-        # except:
-        # QtGui.QMessageBox.information(self, "Exito ", "Algo inesperado ha sucedido")
-        # print("sadfasdf")
+        try:
+            f.guardar_trabajo(self.waveforms, self.file_estaciones,ruta_principal,ruta_guardar)
+            QtGui.QMessageBox.information(self, "Exito ", "Datos guardados correctamente")     
+        except:
+            QtGui.QMessageBox.information(self, "Exito ", "Algo inesperado ha sucedido")
+            # print("sadfasdf")
 
+    def  guardar_sintetico(self):
+        ruta_guardar = str(QtGui.QFileDialog.getExistingDirectory(self, "Seleccione directorio para guardar sismograma"))
+        try:
+            f.guardar_trabajo_sintetico(self.sismograma_sintetico, self.file_estaciones,ruta_principal,ruta_guardar)
+            print(ruta_guardar)
+            os.chdir(ruta_guardar)
+            archivo = open("info.txt","w")
+            for element in self.parametros_sinteticos:
+                archivo.write(element+'\n')
+            archivo.close()
+            QtGui.QMessageBox.information(self, "Exito ", "Datos guardados correctamente")     
+        except:
+            QtGui.QMessageBox.information(self, "Error", "Algo inesperado ha sucedido")
 
     def limpiar_valores(self):
         self.waveforms = " "
@@ -261,7 +339,7 @@ class MainWindow(QtGui.QMainWindow):
         self.file_waveforms = ""
         self.waveforms = ""
         self.bulk = ""
-        self.sismograma_sintetico = ""
+        self.sismograma_windows = ""
         QtGui.QMessageBox.information(self, "Exito ", "Datos limpiados correctamente")
    
 
@@ -280,20 +358,31 @@ class MainWindow(QtGui.QMainWindow):
         else:
             QtGui.QMessageBox.information(self, "Exito", "Archivos cargados correctamente")
 
+    def cargar_waveforms(self):
+        os.chdir(ruta_principal)
+        try:
+            ruta_wave = str(QtGui.QFileDialog.getExistingDirectory(self, "Seleccione carpeta con waveforms modificados"))
+            # print(ruta_wave)
+            self.waveforms = cargar_waveforms(ruta_wave,self.fallas)
+        except:
+            QtGui.QMessageBox.information(self, "Error ", "Algo inesperado ha sucedido")
+
+
+    def cargar_sintetico(self):
+        os.chdir(ruta_principal)
+        try:
+            ruta_wave = str(QtGui.QFileDialog.getExistingDirectory(self, "Seleccione carpeta con waveforms modificados"))
+            # print(ruta_wave)
+            self.waveforms = cargar_sintetico(ruta_wave)
+        except:
+            QtGui.QMessageBox.information(self, "Error ", "Algo inesperado ha sucedido")
 
 
         # funcion que realiza los checks necesarios para llamar al metodo
         # remover_respuesta, si existen archivos cargados, nos permite llamar a
         # la funcion, de otra manera, nos indicara que debemos cargar los
         # archivos
-    def remover_respuesta(self):
-        if(type(self.waveforms) is (type(" ") or (type([]))) or type(self.estaciones) is (type(" ") or (type([])))):
-            QtGui.QMessageBox.information(
-                self, "Error ", "Primero cargue los datos")
-        else:
-            self.waveforms = f.remover_respuesta(self.waveforms,self.estaciones)
-            QtGui.QMessageBox.information(
-                self, "Exito", "Operacion realizada correctamente")
+
         # funcion que realiza los checks necesarios para llamar al metodo
         # periodo_P, si existen archivos cargados, nos permite llamar a
         # la funcion, de otra manera, nos indicara que debemos cargar los
@@ -314,15 +403,16 @@ class MainWindow(QtGui.QMainWindow):
         # graficar, si existen archivos cargados, nos permite llamar a
         # la funcion y se actualiza el grafico, de otra manera, nos indicara que debemos cargar los
         # archivos
-    def graficar(self, numero):
-                # if(type(self.waveforms) is type(" ")):
-        try:
-            self.m.plot(self.waveforms[numero])
-            QtGui.QMessageBox.information(
-                self, " ", "Datos graficos exitosamente")
-        except:
-            QtGui.QMessageBox.information(
-                self, "Error ", "Primero cargue los datos")
+    # def graficar(self, numero):
+    #             # if(type(self.waveforms) is type(" ")):
+    #     # try:
+    #     print(type(self.waveforms[numero]))
+    #     self.m.plot(self.waveforms[numero])
+    #         # QtGui.QMessageBox.information(
+    #             # self, " ", "Datos graficos exitosamente")
+    #     # except:
+    #     #     QtGui.QMessageBox.information(
+    #     #         self, "Error ", "Primero cargue los datos")
 
 
     def graficar_mapa(self):
@@ -340,7 +430,7 @@ class PlotCanvas(FigureCanvas):
 
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111)
+        # self.axes = fig.add_subplot(111)
         FigureCanvas.__init__(self, fig)
         self.setParent(parent)
         FigureCanvas.setSizePolicy(
@@ -350,14 +440,16 @@ class PlotCanvas(FigureCanvas):
     # funcion para actualizar el grafico, ademas si se quieren definir
     # distintos estilos de graficos se puede modificar aqui, agregando o
     # eliminando parametros
-    def plot(self, st):
-        tr = st
-        print(tr)
+    def plot(self, st,nombre):
+        tr = st[0]
         ax = self.figure.add_subplot(111)
         ax.plot(tr.times("matplotlib"), tr.data, "b-")
+        # ax.tittle(nombre)
         ax.xaxis_date()
         self.figure.autofmt_xdate()
         self.draw()
+        plt.show()
+        QtGui.QMessageBox.information(self, "Exito ", "Graficado Correctamente")
 
 
 # llama a la ejecuccion de la ventana principal dando inicio a la aplicaicon

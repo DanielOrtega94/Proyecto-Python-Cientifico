@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>780</width>
-    <height>612</height>
+    <height>653</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
       <x>600</x>
       <y>70</y>
       <width>160</width>
-      <height>71</height>
+      <height>112</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -38,15 +38,29 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QPushButton" name="cargar_waveforms_Button">
+       <property name="text">
+        <string>Cargar Waveforms</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cargar_sintetico_Button">
+       <property name="text">
+        <string>Cargar Sintetico</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </widget>
    <widget class="QWidget" name="verticalLayoutWidget_2">
     <property name="geometry">
      <rect>
       <x>600</x>
-      <y>190</y>
+      <y>230</y>
       <width>160</width>
-      <height>112</height>
+      <height>91</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -58,13 +72,6 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="filtrar_ondap_Button">
-       <property name="text">
-        <string>Filtrar</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QPushButton" name="sismograma_pushButton">
        <property name="text">
         <string>Generar Sismograma</string>
@@ -72,9 +79,9 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pick_pushButton">
+      <widget class="QPushButton" name="filtrar_ondap_Button">
        <property name="text">
-        <string>Pick</string>
+        <string>Filtrar</string>
        </property>
       </widget>
      </item>
@@ -97,7 +104,7 @@
     <property name="geometry">
      <rect>
       <x>580</x>
-      <y>150</y>
+      <y>190</y>
       <width>121</width>
       <height>31</height>
      </rect>
@@ -123,9 +130,9 @@
     <property name="geometry">
      <rect>
       <x>600</x>
-      <y>360</y>
+      <y>350</y>
       <width>160</width>
-      <height>80</height>
+      <height>83</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -143,15 +150,22 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QPushButton" name="basemap_pushButton">
+       <property name="text">
+        <string>Basemap</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </widget>
    <widget class="QWidget" name="verticalLayoutWidget_4">
     <property name="geometry">
      <rect>
       <x>600</x>
-      <y>480</y>
+      <y>490</y>
       <width>160</width>
-      <height>80</height>
+      <height>83</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -169,7 +183,27 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QPushButton" name="sintetico_pushButton">
+       <property name="text">
+        <string>Guardar Sintetico</string>
+       </property>
+      </widget>
+     </item>
     </layout>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>580</x>
+      <y>450</y>
+      <width>121</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; font-weight:600;&quot;&gt;Guardar:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

@@ -1,12 +1,17 @@
 import folium
+import matplotlib.pyplot as plt
+import numpy as np
 import obspy
 import os
-import webbrowser
+import os
 import pandas as pd
-import numpy as np
+import webbrowser
+
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
+from matplotlib import pylab
+# from mpl_toolkits.basemap import Basemap
 from obspy import UTCDateTime
 from obspy import read
 from obspy import read_inventory
@@ -15,6 +20,7 @@ from obspy.clients.fdsn.mass_downloader import CircularDomain
 from obspy.clients.fdsn.mass_downloader import MassDownloader
 from obspy.clients.fdsn.mass_downloader import Restrictions
 from obspy.clients.syngine import Client
+from obspy.imaging.beachball import beach
 
 # funcion encargada de retonar el nombre de los datos, que se encuentran
 # disponibles a descargar, datos una fecha de inicio, una fecha de termino
@@ -33,21 +39,21 @@ def pedir_datos(csv, t1, t2,magnitud):
 
 
 def descargar_datos(cat, radiomin, radiomax,start_time,end_time,dist_esta):
-    client = Client("IRIS")
     nombre_evento = cat["region"].values[0]
     fecha_evento = cat["fecha_evento"].values[0]
     magnitud = cat["Mw_cmt"].values[0]
     nombre_evento = str(nombre_evento + " " +
                         str(fecha_evento) + " " + str(magnitud)) # + str(canal)
-    lat_e = float(cat["lat_cmt"])
-    lon_e = float(cat["lon_cmt"])
+    lat_e = cat["lat_cmt"].values[0]
+    lon_e = cat["lon_cmt"].values[0]
     time = cat["tiempo_cmt"].values[0]
     time = str(fecha_evento) + "T" + time
     time = UTCDateTime(time)
-    depth = float(cat["depth_cmt"])
-    # print(nombre_evento,lat_e,lon_e,time,depth)
+    depth = cat["depth_cmt"].values[0]
+    print("nombre ",nombre_evento,"lat: ",lat_e,"lon: ",lon_e,"time ",time,"depth ",depth,"minradius ",radiomin,"maxradius", radiomax)
     # radiomin = 50.0
     # radiomax = 90.0
+    client = Client("IRIS")
     domain = CircularDomain(latitude=lat_e, longitude=lon_e,
                             minradius=radiomin, maxradius=radiomax)
     mdl = MassDownloader(providers=["IRIS"])
@@ -69,11 +75,11 @@ def descargar_datos(cat, radiomin, radiomax,start_time,end_time,dist_esta):
         archivo.write(str(cat["id_evento"].values[0]) + "\n")
         archivo.close()
         os.chdir("..")
-        try:
-            mdl.download(domain, restrictions, mseed_storage=n_carpeta_w,
+        # try:
+        mdl.download(domain, restrictions, mseed_storage=n_carpeta_w,
                      stationxml_storage=n_carpeta_s)
-        except:
-            return 0
+        # except:
+            # return 0
     except:
         return -100
         
@@ -145,31 +151,48 @@ def cargar_stations(directorio,ceseve,ruta_info):
             fallas.append(inv)
     return estaciones, bulk,fallas
 
+def cargar_sintetico(ruta_wave):
+    os.chdir(directorio)
+    archivos = sorted(os.listdir(directorio))
+    sintetico =[]
+    for element in archivos:
+        sintetico.append(read(element))
+    return sintetico
+
 
 # removemos la respuesta del instrumentos a los sismogramas
-def remover_respuesta(st,inv):
-    pre_filt = [0.001, 0.005, 10, 20]
-    # output = ["DISP","VEL","ACC"]
-    # unidad = uno de los output escogidos 
+def remover_respuesta(st,inv,pre_filt,output_1):
+    stream = []
     for wave,inventory in zip(st,inv):
-        wave=wave.remove_response(inventory=inventory, pre_filt=pre_filt, output="VEL", plot=False)
+        wave=wave.remove_response(inventory=inventory, pre_filt=pre_filt, output=output_1, plot=False)
         wave.taper
         wave.detrend("constant")
         wave.detrend("linear")
-    return st #,unidad
+        stream.append(wave)
+    return stream #,unidad
 
 # remmovemos el periodo P a los simogramas
-def filtro(tipo, st):
+def filtro(tipo, st,freq_):
     corners = 2
+    stream = []
     if(tipo == "lowpass"):
-        st = st.filter('lowpass', freq=0.2, corners=2, zerophase=True)
+        for element in st:
+            element = element.filter('lowpass', freq=freq_, corners=2, zerophase=True)
+            stream.append(element)
+        # st = st.filter('lowpass', freq=freq_, corners=2, zerophase=True)
     elif(tipo == "highpass"):
-        st =  st.filter('highpass', freq=0.2, corners=2, zerophase=True)
+        # st =  st.filter('highpass', freq=freq_, corners=2, zerophase=True)
+        for element in st:
+            element = element.filter('highpass', freq=freq_, corners=2, zerophase=True)
+            stream.append(element)
     elif(tipo == "bandpass"):
-        st =  st.filter('bandpass', freqmin=0.2,freqmax=2, corners=2, zerophase=True)
-    return st 
+        for element in st:
+            element =  element.filter('bandpass', freqmin=freq_[0],freqmax=freq_[1], corners=2, zerophase=True)
+            stream.append(element)
+        # st =  st.filter('bandpass', freqmin=freq_[0],freqmax=freq_[1], corners=2, zerophase=True)
+    return stream 
 
-def generar_sintetico(tipo,ruta_info,ceseve,bulk):
+def generar_sintetico(ruta_info,ceseve,bulk,output,start,end):
     ruta_info = ruta_info + "/info.txt"
     archivo =  open(ruta_info)
     archivos = []
@@ -177,24 +200,20 @@ def generar_sintetico(tipo,ruta_info,ceseve,bulk):
         archivos.append(element.strip())
     ceseve= ceseve[ceseve["id_evento"] == archivos[0]]
     client = Client()
-    if(tipo == "basico"):
-        sint_teo = client.get_waveforms_bulk(model='ak135f_5s',eventid=archivos[0],
-            units='velocity',starttime="P-30",endtime="P+30",components = 'Z' ,bulk = bulk)
-
-
-    elif(tipo == "custom"):
-        tiempo_cmt = ceseve["tiempo_cmt"].values[0]
-        lon_cmt = ceseve["lon_cmt"].values[0]
-        lat_cmt = ceseve["lat_cmt"].values[0]
-        depth_cmt = ceseve["depth_cmt"].values[0]
-        exp_cmt  =ceseve["exp_cmt"].values[0]
-        Mij_cmt = list(exp_cmt * 10E-7 *np.array([ ceseve["Mrr"].values[0],ceseve["Mtt"].values[0],ceseve["Mpp"].values[0],ceseve["Mrt"].values[0],ceseve["Mrp"].values[0],ceseve["Mtp"].values[0]]))
-        st_sint_teo=client.get_waveforms_bulk(model='ak135f_5s',bulk=bulk,
-                                   units='velocity',origintime=tiempo_cmt,starttime="P-0",endtime="P+60",
-                                   sourcemomenttensor=Mij_cmt,components="Z",
-                                   sourcelongitude=lon_cmt,sourcelatitude=lat_cmt,
-                                   sourcedepthinmeters= depth_cmt*1000 )
-    return sint_teo
+    codigo = archivos[0]
+    # print(codigo)
+    codigo = "GCMT:" + codigo[1:]
+    print(codigo)
+    if(output == "VEL"):
+        output = 'velocity'
+    elif(output == "DISP"):
+        output = "displacement"
+    elif(output == "ACC"):
+        output = "acceleration"
+    sint_teo = client.get_waveforms_bulk(model='ak135f_5s',eventid=codigo,
+            units=output,starttime="P-"+start,endtime="P+"+end,components = 'Z' ,bulk = bulk)
+    parametros = ['ak135f_5s',archivos[0],"P-"+start,"P+"+end,output]
+    return sint_teo,parametros
 
 
 
@@ -210,12 +229,8 @@ def mapa(estaciones,ceseve,ruta_info):
     for estacion in estaciones:
         lista = estacion.get_contents()['channels'][0].split(".")
         nombre =  lista[0] +"."+lista[1]
-        # print(estacion[0][0].__dict__)
         latitud = estacion[0][0].__dict__["_latitude"]
         longitud = estacion[0][0].__dict__["_longitude"]
-        
-        # marker = folium.map.Marker([latitud, longitud], icon=fig_icono,popup=nombre)
-        # m.add_children(marker)
         folium.Marker(location=[latitud, longitud],
                       popup=nombre).add_to(m)#nombre
         m.add_child(folium.LatLngPopup())
@@ -231,28 +246,54 @@ def mapa(estaciones,ceseve,ruta_info):
     lat_e = ceseve["lat_cmt"].values[0]
     folium.Marker(location=[lat_e, lon_e], popup='Lugar Evento',
                   icon=folium.Icon(color='red', icon='info-sign')).add_to(m)
-    # directorio = directorio.replace("info.txt", "")
-    # print(directorio)
     os.chdir(ruta_info)
     m.save('index.html')
     webbrowser.open("index.html")
 
-def filtro():
-    print("folium.Marker")
+def guardar_trabajo_sintetico(streams,nombre,ruta_principal,ruta_guardar):
+    nombre = nombre.replace(ruta_principal.replace("\\","/")+"/datos/","")
+    # print(ruta_guardar)
+    os.chdir(ruta_guardar)
+
+    i = 0
+    for stream in streams:
+        nuevo= nombre+str(i)+ ".mseed"
+        stream.write(nuevo)  
+        i+=1
 
 
 def guardar_trabajo(streams,nombre,ruta_principal,ruta_guardar):
 
     nombre = nombre.replace(ruta_principal.replace("\\","/")+"/datos/","")
-    print("ruta: ",ruta_principal)
-    print("nombre: ",nombre)
-    print(ruta_guardar)
     os.chdir(ruta_guardar)
-    print(type(streams))
-    print(type(streams[0]))
     i = 0
     for stream in streams:
         nuevo= nombre+str(i)+ ".mseed"
         print(nuevo)
         stream.write(nuevo)  
         i+=1
+
+def mapa_basemap(ceseve,ruta_info):
+    ruta_info = ruta_info + "/info.txt"
+    archivo =  open(directorio)
+    archivos = []
+    for element in archivo:
+        archivos.append(element.strip())
+    ceseve= ceseve[ceseve["id_evento"] == archivos[0]]
+    lon_e = ceseve["lon_cmt"].values[0]
+    lat_e = ceseve["lat_cmt"].values[0]
+    Mrr = ceseve['Mrr'].values[0]
+    Mtt = ceseve['Mtt'].values[0]
+    Mpp = ceseve['Mpp'].values[0]
+    Mrt = ceseve['Mrt'].values[0]
+    Mrp = ceseve['Mrp'].values[0]
+    Mtp = ceseve['Mtp'].values[0]
+    m = Basemap(resolution='c',projection='cyl', area_thresh = 100.0)
+    m.bluemarble()
+    x,y=m(lon_e,lat_e)
+    ax=plt.gca()
+    focmec=[Mrr[i],Mtt[i],Mpp[i],Mrt[i],Mrp[i],Mtp[i]]   
+    b = beach(focmec, xy=(x[i], y[i]), width=3, linewidth=1)
+    b.set_zorder(10)
+    ax.add_collection(b)
+    plt.show()
