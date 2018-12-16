@@ -21,9 +21,10 @@ from obspy.clients.syngine import Client
 # y una magnitud
 
 
-def pedir_datos(csv, t1, t2):
+def pedir_datos(csv, t1, t2,magnitud):
     soluciones_fechas = csv[t1 < csv.fecha_evento]
     soluciones_fechas = soluciones_fechas[soluciones_fechas.fecha_evento < t2]
+    soluciones_fechas = soluciones_fechas[soluciones_fechas.Mw_cmt>= magnitud]
     soluciones_fechas["lat_cmt"] = np.around(
         soluciones_fechas["lat_cmt"], decimals=2)
     soluciones_fechas["lon_cmt"] = np.around(
@@ -31,7 +32,7 @@ def pedir_datos(csv, t1, t2):
     return soluciones_fechas
 
 
-def descargar_datos(cat, radiomin, radiomax):
+def descargar_datos(cat, radiomin, radiomax,start_time,end_time,dist_esta):
     client = Client("IRIS")
     nombre_evento = cat["region"].values[0]
     fecha_evento = cat["fecha_evento"].values[0]
@@ -45,14 +46,14 @@ def descargar_datos(cat, radiomin, radiomax):
     time = UTCDateTime(time)
     depth = float(cat["depth_cmt"])
     # print(nombre_evento,lat_e,lon_e,time,depth)
-    radiomin = 50.0
-    radiomax = 90.0
+    # radiomin = 50.0
+    # radiomax = 90.0
     domain = CircularDomain(latitude=lat_e, longitude=lon_e,
                             minradius=radiomin, maxradius=radiomax)
     mdl = MassDownloader(providers=["IRIS"])
-    restrictions = Restrictions(starttime=time - 60, endtime=time + 3600,
+    restrictions = Restrictions(starttime=time - start_time, endtime=time + end_time,
                                 chunklength_in_sec=86400, location="00", channel="BHZ", reject_channels_with_gaps=True,
-                                minimum_length=0.95, minimum_interstation_distance_in_m=1000.0,
+                                minimum_length=0.95, minimum_interstation_distance_in_m=dist_esta,
                                 sanitize=True)
     ruta = os.getcwd()
     rutas = "datos/"
@@ -81,6 +82,17 @@ def descargar_datos(cat, radiomin, radiomax):
 # mensaje
 
 
+def carga_datos(directorio,ceseve):
+    try:
+        os.chdir(directorio)
+        ruta_wave = directorio + "/waveforms"
+        ruta_station =  directorio + "/stations"
+        estaciones,bulk,fallas= cargar_stations(ruta_station,ceseve,directorio)
+        waveforms = cargar_waveforms(ruta_wave,fallas)
+    except:
+        return [],[],[],[]
+    return estaciones,bulk,fallas,waveforms
+
 def cargar_waveforms(directorio,fallas):
     # cargamos las carpetas asi, pero luego en la interfaz sera automatico
     ruta_w = directorio
@@ -95,7 +107,6 @@ def cargar_waveforms(directorio,fallas):
     waveforms = []
     for element in archivos:
         waveforms.append(read(element))
-    
     return waveforms
     # except:
     # print("AAAAAAAAAAA")
@@ -189,45 +200,59 @@ def generar_sintetico(tipo,ruta_info,ceseve,bulk):
 
 # funcion que carga el mapa que se abre en navegador usando las librerias
 # folium y branca
-def mapa(directorio, icono):
+def mapa(estaciones,ceseve,ruta_info):
     # creamos el mapa
     m = folium.Map(tiles='Stamen Terrain', zoom_start=0.5, min_zoom=2)
     # creamos el icono para identificar las estaciones
-    fig_icono = folium.features.CustomIcon(icono, icon_size=(14, 14))
+    # fig_icono = folium.features.CustomIcon(icono, icon_size=(14, 14))
 
     # graficamos las estaciones
-    XML = os.listdir(directorio)
-    archivos = sorted(XML)
-    # archivos = cargar_stations(directorio)
-    os.chdir(directorio)
-    for resp in archivos:
-        # print(resp)
-        inv = read_inventory(str(resp))
-        nombre = resp.replace(".xml", "")
-        latitud = inv[0][0].__dict__["_latitude"]
-        longitud = inv[0][0].__dict__["_longitude"]
-        nombres = [nombre,latitud,longitud]
+    for estacion in estaciones:
+        lista = estacion.get_contents()['channels'][0].split(".")
+        nombre =  lista[0] +"."+lista[1]
+        # print(estacion[0][0].__dict__)
+        latitud = estacion[0][0].__dict__["_latitude"]
+        longitud = estacion[0][0].__dict__["_longitude"]
+        
         # marker = folium.map.Marker([latitud, longitud], icon=fig_icono,popup=nombre)
         # m.add_children(marker)
         folium.Marker(location=[latitud, longitud],
-                      popup=nombres).add_to(m)#nombre
+                      popup=nombre).add_to(m)#nombre
         m.add_child(folium.LatLngPopup())
 
     # cargamos la informacion del terremoto
-    directorio = directorio.replace("stations", "info.txt")
-    archivo = open(directorio)
-    array = []
+    directorio = ruta_info + "/info.txt"
+    archivo =  open(directorio)
+    archivos = []
     for element in archivo:
-        array.append(element.replace("\n", ""))
-    lat_e = float(array[0])
-    lon_e = float(array[1])
+        archivos.append(element.strip())
+    ceseve= ceseve[ceseve["id_evento"] == archivos[0]]
+    lon_e = ceseve["lon_cmt"].values[0]
+    lat_e = ceseve["lat_cmt"].values[0]
     folium.Marker(location=[lat_e, lon_e], popup='Lugar Evento',
                   icon=folium.Icon(color='red', icon='info-sign')).add_to(m)
-    directorio = directorio.replace("info.txt", "")
-    print(directorio)
-    os.chdir(directorio)
+    # directorio = directorio.replace("info.txt", "")
+    # print(directorio)
+    os.chdir(ruta_info)
     m.save('index.html')
     webbrowser.open("index.html")
 
 def filtro():
     print("folium.Marker")
+
+
+def guardar_trabajo(streams,nombre,ruta_principal,ruta_guardar):
+
+    nombre = nombre.replace(ruta_principal.replace("\\","/")+"/datos/","")
+    print("ruta: ",ruta_principal)
+    print("nombre: ",nombre)
+    print(ruta_guardar)
+    os.chdir(ruta_guardar)
+    print(type(streams))
+    print(type(streams[0]))
+    i = 0
+    for stream in streams:
+        nuevo= nombre+str(i)+ ".mseed"
+        print(nuevo)
+        stream.write(nuevo)  
+        i+=1

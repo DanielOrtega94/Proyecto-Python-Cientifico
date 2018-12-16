@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>942</width>
-    <height>685</height>
+    <width>780</width>
+    <height>612</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,23 +18,23 @@
     <property name="geometry">
      <rect>
       <x>600</x>
-      <y>90</y>
+      <y>70</y>
       <width>160</width>
       <height>71</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QPushButton" name="cargar_estaciones_Button">
+      <widget class="QPushButton" name="descargar_Button">
        <property name="text">
-        <string>Cargar Estaciones</string>
+        <string>Descargar Datos</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="cargar_waveforms_Button">
+      <widget class="QPushButton" name="cargar_estaciones_Button">
        <property name="text">
-        <string>Cargar Waveforms</string>
+        <string>Cargar Datos</string>
        </property>
       </widget>
      </item>
@@ -44,7 +44,7 @@
     <property name="geometry">
      <rect>
       <x>600</x>
-      <y>210</y>
+      <y>190</y>
       <width>160</width>
       <height>112</height>
      </rect>
@@ -84,7 +84,7 @@
     <property name="geometry">
      <rect>
       <x>580</x>
-      <y>50</y>
+      <y>30</y>
       <width>121</width>
       <height>31</height>
      </rect>
@@ -97,7 +97,7 @@
     <property name="geometry">
      <rect>
       <x>580</x>
-      <y>170</y>
+      <y>150</y>
       <width>121</width>
       <height>31</height>
      </rect>
@@ -110,7 +110,7 @@
     <property name="geometry">
      <rect>
       <x>580</x>
-      <y>340</y>
+      <y>320</y>
       <width>121</width>
       <height>31</height>
      </rect>
@@ -123,7 +123,7 @@
     <property name="geometry">
      <rect>
       <x>600</x>
-      <y>380</y>
+      <y>360</y>
       <width>160</width>
       <height>80</height>
      </rect>
@@ -145,24 +145,11 @@
      </item>
     </layout>
    </widget>
-   <widget class="QPushButton" name="descargar_Button">
-    <property name="geometry">
-     <rect>
-      <x>600</x>
-      <y>20</y>
-      <width>158</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Descargar Datos</string>
-    </property>
-   </widget>
    <widget class="QWidget" name="verticalLayoutWidget_4">
     <property name="geometry">
      <rect>
       <x>600</x>
-      <y>500</y>
+      <y>480</y>
       <width>160</width>
       <height>80</height>
      </rect>
@@ -190,7 +177,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>942</width>
+     <width>780</width>
      <height>21</height>
     </rect>
    </property>
