@@ -11,7 +11,6 @@ from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 from matplotlib import pylab
-# from mpl_toolkits.basemap import Basemap
 from obspy import UTCDateTime
 from obspy import read
 from obspy import read_inventory
@@ -20,7 +19,8 @@ from obspy.clients.fdsn.mass_downloader import CircularDomain
 from obspy.clients.fdsn.mass_downloader import MassDownloader
 from obspy.clients.fdsn.mass_downloader import Restrictions
 from obspy.clients.syngine import Client
-from obspy.imaging.beachball import beach
+from obspy.imaging.beachball import beachball
+
 
 # funcion encargada de retonar el nombre de los datos, que se encuentran
 # disponibles a descargar, datos una fecha de inicio, una fecha de termino
@@ -215,11 +215,8 @@ def generar_sintetico(ruta_info,ceseve,bulk,output,start,end):
     parametros = ['ak135f_5s',archivos[0],"P-"+start,"P+"+end,output]
     return sint_teo,parametros
 
-
-
-# funcion que carga el mapa que se abre en navegador usando las librerias
-# folium y branca
 def mapa(estaciones,ceseve,ruta_info):
+
     # creamos el mapa
     m = folium.Map(tiles='Stamen Terrain', zoom_start=0.5, min_zoom=2)
     # creamos el icono para identificar las estaciones
@@ -250,6 +247,41 @@ def mapa(estaciones,ceseve,ruta_info):
     m.save('index.html')
     webbrowser.open("index.html")
 
+
+
+# funcion que carga el mapa que se abre en navegador usando las librerias
+# folium y branca
+# def mapa(estaciones,ceseve,ruta_info):
+#     # creamos el mapa
+#     m = folium.Map(tiles='Stamen Terrain', zoom_start=0.5, min_zoom=2)
+#     # creamos el icono para identificar las estaciones
+#     # fig_icono = folium.features.CustomIcon(icono, icon_size=(14, 14))
+
+#     # graficamos las estaciones
+#     for estacion in estaciones:
+#         lista = estacion.get_contents()['channels'][0].split(".")
+#         nombre =  lista[0] +"."+lista[1]
+#         latitud = estacion[0][0].__dict__["_latitude"]
+#         longitud = estacion[0][0].__dict__["_longitude"]
+#         folium.Marker(location=[latitud, longitud],
+#                       popup=nombre).add_to(m)#nombre
+#         m.add_child(folium.LatLngPopup())
+
+#     # cargamos la informacion del terremoto
+#     directorio = ruta_info + "/info.txt"
+#     archivo =  open(directorio)
+#     archivos = []
+#     for element in archivo:
+#         archivos.append(element.strip())
+#     ceseve= ceseve[ceseve["id_evento"] == archivos[0]]
+#     lon_e = ceseve["lon_cmt"].values[0]
+#     lat_e = ceseve["lat_cmt"].values[0]
+#     folium.Marker(location=[lat_e, lon_e], popup='Lugar Evento',
+#                   icon=folium.Icon(color='red', icon='info-sign')).add_to(m)
+#     os.chdir(ruta_info)
+#     m.save('index.html')
+#     webbrowser.open("index.html")
+
 def guardar_trabajo_sintetico(streams,nombre,ruta_principal,ruta_guardar):
     nombre = nombre.replace(ruta_principal.replace("\\","/")+"/datos/","")
     # print(ruta_guardar)
@@ -273,27 +305,4 @@ def guardar_trabajo(streams,nombre,ruta_principal,ruta_guardar):
         stream.write(nuevo)  
         i+=1
 
-def mapa_basemap(ceseve,ruta_info):
-    ruta_info = ruta_info + "/info.txt"
-    archivo =  open(directorio)
-    archivos = []
-    for element in archivo:
-        archivos.append(element.strip())
-    ceseve= ceseve[ceseve["id_evento"] == archivos[0]]
-    lon_e = ceseve["lon_cmt"].values[0]
-    lat_e = ceseve["lat_cmt"].values[0]
-    Mrr = ceseve['Mrr'].values[0]
-    Mtt = ceseve['Mtt'].values[0]
-    Mpp = ceseve['Mpp'].values[0]
-    Mrt = ceseve['Mrt'].values[0]
-    Mrp = ceseve['Mrp'].values[0]
-    Mtp = ceseve['Mtp'].values[0]
-    m = Basemap(resolution='c',projection='cyl', area_thresh = 100.0)
-    m.bluemarble()
-    x,y=m(lon_e,lat_e)
-    ax=plt.gca()
-    focmec=[Mrr[i],Mtt[i],Mpp[i],Mrt[i],Mrp[i],Mtp[i]]   
-    b = beach(focmec, xy=(x[i], y[i]), width=3, linewidth=1)
-    b.set_zorder(10)
-    ax.add_collection(b)
-    plt.show()
+

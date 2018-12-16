@@ -23,7 +23,6 @@ import numpy as np
 import pandas as pd
 import random
 import sys
-import shutil
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QMainWindow
@@ -237,22 +236,20 @@ class MainWindow(QtGui.QMainWindow):
         self.sintetico_pushButton.clicked.connect(self.guardar_sintetico)
         self.cargar_waveforms_Button.clicked.connect(self.cargar_waveforms)
         self.cargar_sintetico_Button.clicked.connect(self.cargar_sintetico)
-        self.basemap_pushButton.clicked.connect(self.graficar_basemap)
         self.graficar_sintetico_Button.clicked.connect(self.graficar_sintetico)
         # self.cargar_waveforms_Button.clicked.connect(self.graficar_basemap)
         self.waveforms = ""
         self.estaciones = ""
 
-    def graficar_basemap(self):
-        f.mapa_basemap(soluciones_cmt,self.file_estaciones)
-        print("asd")
+
 
     def graficar(self):
         try:
             c=0 
             ruta = str(QtGui.QFileDialog.getExistingDirectory(self, "Seleccione directorio para guardar sismograma"))
+            ruta = ruta +"/"
             # ruta = self.file_estaciones+"/graficos_normales/"
-            os.mkdir(ruta)
+            # os.mkdir(ruta)
             os.chdir(ruta)
 
             for traza in self.waveforms:
@@ -275,16 +272,14 @@ class MainWindow(QtGui.QMainWindow):
         try:
             c=0 
             ruta = str(QtGui.QFileDialog.getExistingDirectory(self, "Seleccione directorio para guardar sismograma"))
-            # ruta = self.file_estaciones+"/graficos_sinteticos/"
-
-            os.mkdir(ruta)
+            ruta = ruta +"/"
             os.chdir(ruta)
             for traza in self.sismograma_sintetico:
                 traza = traza
                 fig = plt.figure()
                 ax = fig.add_subplot(1, 1, 1)
                 ax.plot(traza.times('matplotlib'),traza.data , 'r' , label = 'sis obs')
-                plt.title('Formas de onda observadas estacion  ' +traza.id  )
+                plt.title('Formas de onda sinteticas estacion  ' +traza.id  )
                 ax.xaxis_date()
                 fig.autofmt_xdate()
                 print(ruta)
@@ -340,7 +335,10 @@ class MainWindow(QtGui.QMainWindow):
             remover_respuesta_windows.exec_()
             self.waveforms = remover_respuesta_windows.waveforms
             self.output = remover_respuesta_windows.output
-            QtGui.QMessageBox.information(self, "Exito", "Operacion realizada correctamente")
+            if(len(self.waveforms)):
+                QtGui.QMessageBox.information(self, "Error ", "Algo inesperado ha sucedido")
+            else:
+                QtGui.QMessageBox.information(self, "Exito", "Operacion realizada correctamente")
         except:
             QtGui.QMessageBox.information(self, "Error ", "Algo inesperado ha sucedido")
 
@@ -350,7 +348,10 @@ class MainWindow(QtGui.QMainWindow):
             periodo_windows = Periodo(self.waveforms)
             periodo_windows.exec_()
             self.waveforms = periodo_windows.waveforms
-            QtGui.QMessageBox.information(self, "Exito", "Operacion realizada correctamente")
+            if(len(self.waveforms)):              
+                QtGui.QMessageBox.information(self, "Exito", "Operacion realizada correctamente")
+            else:
+                QtGui.QMessageBox.information(self, "Error ", "Algo inesperado ha sucedido")
         except:
             QtGui.QMessageBox.information(self, "Error ", "Algo inesperado ha sucedido")
 
@@ -409,14 +410,18 @@ class MainWindow(QtGui.QMainWindow):
     
 
     def carga_datos(self):
-        os.chdir(ruta_principal)
-        self.file_estaciones = str(QtGui.QFileDialog.getExistingDirectory(
-            self, "Seleccione carpeta datos"))
-        self.estaciones,self.bulk,self.fallas,self.waveforms = f.carga_datos(self.file_estaciones,soluciones_cmt)
-        if(np.size(self.estaciones) == 0 or np.size(self.waveforms) == 0):
+        try:
+            os.chdir(ruta_principal)
+            self.file_estaciones = str(QtGui.QFileDialog.getExistingDirectory(self, "Seleccione carpeta datos"))
+            os.chdir(self.file_estaciones)
+            self.estaciones,self.bulk,self.fallas,self.waveforms = f.carga_datos(self.file_estaciones,soluciones_cmt)
+            if(len(self.estaciones) == 0 or len(self.waveforms) == 0):
+                QtGui.QMessageBox.information(self, "Error ", "Algo inesperado ha sucedido")
+            else:
+                QtGui.QMessageBox.information(self, "Exito", "Archivos cargados correctamente")
+
+        except:
             QtGui.QMessageBox.information(self, "Error ", "Algo inesperado ha sucedido")
-        else:
-            QtGui.QMessageBox.information(self, "Exito", "Archivos cargados correctamente")
 
     def cargar_waveforms(self):
         os.chdir(ruta_principal)
@@ -448,40 +453,18 @@ class MainWindow(QtGui.QMainWindow):
         # la funcion, de otra manera, nos indicara que debemos cargar los
         # archivos
 
-    def periodo(self):
-        # print(self.file_waveforms, self.estaciones)
-        if(type(self.waveforms) is type(" ") or type(self.estaciones) is type(" ")):
-            QtGui.QMessageBox.information(
-                self, "Error ", "Primero cargue los datos")
-        else:
-            tipo = "bandpass"
-            self.waveforms = f.filtro(tipo,self.waveforms)
-            QtGui.QMessageBox.information(
-                self, "Exito", "Operacion realizada correctamente")
-
         # funcion que realiza los checks necesarios para llamar al metodo
         # graficar, si existen archivos cargados, nos permite llamar a
         # la funcion y se actualiza el grafico, de otra manera, nos indicara que debemos cargar los
         # archivos
-    # def graficar(self, numero):
-    #             # if(type(self.waveforms) is type(" ")):
-    #     # try:
-    #     print(type(self.waveforms[numero]))
-    #     self.m.plot(self.waveforms[numero])
-    #         # QtGui.QMessageBox.information(
-    #             # self, " ", "Datos graficos exitosamente")
-    #     # except:
-    #     #     QtGui.QMessageBox.information(
-    #     #         self, "Error ", "Primero cargue los datos")
 
 
     def graficar_mapa(self):
         # ruta = os.getcwd() + "/interfaz/estaciones.png"
-        if self.file_estaciones:
+        try:
             f.mapa(self.estaciones,soluciones_cmt,self.file_estaciones)
-        else:
-            QtGui.QMessageBox.information(
-                self, "Error ", "Cargue waveforms y stations del evento")
+        except:
+            QtGui.QMessageBox.information(self, "Error ", "Algo inesperado ha sucedido")
 
 
 # llama a la ejecuccion de la ventana principal dando inicio a la aplicaicon

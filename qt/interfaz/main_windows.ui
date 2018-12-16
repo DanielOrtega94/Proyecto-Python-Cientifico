@@ -132,7 +132,7 @@
       <x>50</x>
       <y>250</y>
       <width>160</width>
-      <height>112</height>
+      <height>81</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -154,13 +154,6 @@
       <widget class="QPushButton" name="mapa_Button">
        <property name="text">
         <string>Mapa</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="basemap_pushButton">
-       <property name="text">
-        <string>Basemap</string>
        </property>
       </widget>
      </item>
