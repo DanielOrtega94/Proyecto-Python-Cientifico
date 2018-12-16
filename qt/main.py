@@ -23,7 +23,7 @@ import numpy as np
 import pandas as pd
 import random
 import sys
-
+import shutil
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QMainWindow
@@ -223,10 +223,10 @@ class MainWindow(QtGui.QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.ui = loadUi('interfaz/main_windows.ui', self)
-        self.m = PlotCanvas(self, width=5, height=4)
-        self.m.setGeometry(QtCore.QRect(60, 50, 501, 471))
+        # self.m = PlotCanvas(self, width=5, height=4)
+        # self.m.setGeometry(QtCore.QRect(60, 50, 501, 471))
         self.descargar_Button.clicked.connect(self.executeDescargaDatos)
-        self.graficar_Button.clicked.connect(self.executeSeleccionarDatos)
+        self.graficar_Button.clicked.connect(self.graficar)
         self.remover_respuesta_Button.clicked.connect(self.executeRemoverRespuesta)
         self.filtrar_ondap_Button.clicked.connect(self.executePeriodo)
         self.sismograma_pushButton.clicked.connect(self.executeSismogramaSintetico)
@@ -238,6 +238,7 @@ class MainWindow(QtGui.QMainWindow):
         self.cargar_waveforms_Button.clicked.connect(self.cargar_waveforms)
         self.cargar_sintetico_Button.clicked.connect(self.cargar_sintetico)
         self.basemap_pushButton.clicked.connect(self.graficar_basemap)
+        self.graficar_sintetico_Button.clicked.connect(self.graficar_sintetico)
         # self.cargar_waveforms_Button.clicked.connect(self.graficar_basemap)
         self.waveforms = ""
         self.estaciones = ""
@@ -245,6 +246,54 @@ class MainWindow(QtGui.QMainWindow):
     def graficar_basemap(self):
         f.mapa_basemap(soluciones_cmt,self.file_estaciones)
         print("asd")
+
+    def graficar(self):
+        try:
+            c=0 
+            ruta = str(QtGui.QFileDialog.getExistingDirectory(self, "Seleccione directorio para guardar sismograma"))
+            # ruta = self.file_estaciones+"/graficos_normales/"
+            os.mkdir(ruta)
+            os.chdir(ruta)
+
+            for traza in self.waveforms:
+                traza = traza[0]
+                fig = plt.figure()
+                ax = fig.add_subplot(1, 1, 1)
+                ax.plot(traza.times('matplotlib'),traza.data , 'r' , label = 'sis obs')
+                plt.title('Formas de onda observadas estacion  ' +traza.id  )
+                ax.xaxis_date()
+                fig.autofmt_xdate()
+                print(ruta)
+                plt.savefig(ruta+traza.id+'.'+'{:04}'.format(c+1)+'.png')
+                plt.close()
+                c+=1
+        except:
+            QtGui.QMessageBox.information(self, "Error ", "Algo inesperado ha sucedido")
+
+
+    def graficar_sintetico(self):
+        try:
+            c=0 
+            ruta = str(QtGui.QFileDialog.getExistingDirectory(self, "Seleccione directorio para guardar sismograma"))
+            # ruta = self.file_estaciones+"/graficos_sinteticos/"
+
+            os.mkdir(ruta)
+            os.chdir(ruta)
+            for traza in self.sismograma_sintetico:
+                traza = traza
+                fig = plt.figure()
+                ax = fig.add_subplot(1, 1, 1)
+                ax.plot(traza.times('matplotlib'),traza.data , 'r' , label = 'sis obs')
+                plt.title('Formas de onda observadas estacion  ' +traza.id  )
+                ax.xaxis_date()
+                fig.autofmt_xdate()
+                print(ruta)
+                plt.savefig(ruta+traza.id+'.'+'{:04}'.format(c+1)+'.png')
+                plt.close()
+                c+=1
+        except:
+            QtGui.QMessageBox.information(self, "Error ", "Algo inesperado ha sucedido")
+
 
     def executeDescargaDatos(self):
         os.chdir(ruta_principal)
@@ -266,7 +315,18 @@ class MainWindow(QtGui.QMainWindow):
         string = self.waveforms[self.indice_array][0].__dict__["stats"].network + \
                 " " + self.waveforms[self.indice_array][0].__dict__["stats"].station
         # self.graficar(self.indice_array)
-        self.m.plot(self.waveforms[self.indice_array],string)
+        tr = self.waveforms[self.indice_array][0]
+        plt
+        ax = self.figure.add_subplot(111)
+        ax.plot(tr.times("matplotlib"), tr.data, "b-")
+        # ax.tittle(nombre)
+        ax.xaxis_date()
+        self.figure.autofmt_xdate()
+        self.draw()
+        plt.show()
+        QtGui.QMessageBox.information(self, "Exito ", "Graficado Correctamente")
+
+        # self.m.plot(self.waveforms[self.indice_array],string)
         
         # except:
         #     QtGui.QMessageBox.information(
@@ -422,34 +482,6 @@ class MainWindow(QtGui.QMainWindow):
         else:
             QtGui.QMessageBox.information(
                 self, "Error ", "Cargue waveforms y stations del evento")
-
-# clase definida, para definir un lugar donde se pueda graficar en la interfaz
-
-
-class PlotCanvas(FigureCanvas):
-
-    def __init__(self, parent=None, width=5, height=4, dpi=100):
-        fig = Figure(figsize=(width, height), dpi=dpi)
-        # self.axes = fig.add_subplot(111)
-        FigureCanvas.__init__(self, fig)
-        self.setParent(parent)
-        FigureCanvas.setSizePolicy(
-            self, QSizePolicy.Expanding, QSizePolicy.Expanding)
-        FigureCanvas.updateGeometry(self)
-
-    # funcion para actualizar el grafico, ademas si se quieren definir
-    # distintos estilos de graficos se puede modificar aqui, agregando o
-    # eliminando parametros
-    def plot(self, st,nombre):
-        tr = st[0]
-        ax = self.figure.add_subplot(111)
-        ax.plot(tr.times("matplotlib"), tr.data, "b-")
-        # ax.tittle(nombre)
-        ax.xaxis_date()
-        self.figure.autofmt_xdate()
-        self.draw()
-        plt.show()
-        QtGui.QMessageBox.information(self, "Exito ", "Graficado Correctamente")
 
 
 # llama a la ejecuccion de la ventana principal dando inicio a la aplicaicon
