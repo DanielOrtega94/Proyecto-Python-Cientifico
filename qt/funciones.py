@@ -50,9 +50,6 @@ def descargar_datos(cat, radiomin, radiomax,start_time,end_time,dist_esta):
     time = str(fecha_evento) + "T" + time
     time = UTCDateTime(time)
     depth = cat["depth_cmt"].values[0]
-    print("nombre ",nombre_evento,"lat: ",lat_e,"lon: ",lon_e,"time ",time,"depth ",depth,"minradius ",radiomin,"maxradius", radiomax)
-    # radiomin = 50.0
-    # radiomax = 90.0
     client = Client("IRIS")
     domain = CircularDomain(latitude=lat_e, longitude=lon_e,
                             minradius=radiomin, maxradius=radiomax)
@@ -75,19 +72,14 @@ def descargar_datos(cat, radiomin, radiomax,start_time,end_time,dist_esta):
         archivo.write(str(cat["id_evento"].values[0]) + "\n")
         archivo.close()
         os.chdir("..")
-        # try:
         mdl.download(domain, restrictions, mseed_storage=n_carpeta_w,
                      stationxml_storage=n_carpeta_s)
-        # except:
-            # return 0
     except:
         return -100
         
 
 # intentamos cargar el directorio de las waveforms, si falla se muestra un
 # mensaje
-
-
 def carga_datos(directorio,ceseve):
     try:
         os.chdir(directorio)
@@ -104,18 +96,17 @@ def cargar_waveforms(directorio,fallas):
     ruta_w = directorio
     os.chdir(directorio)
     archivos = sorted(os.listdir(directorio))
-    for estacion in fallas:
-        for wave in archivos:
-            lista = estacion.get_contents()['channels'][0].split(".")
-            nombre =  lista[0] +"."+lista[1]
-            if(wave.count(nombre)):
-                archivos.remove(wave)
+    if(len(fallas)):
+        for estacion in fallas:
+            for wave in archivos:
+                lista = estacion.get_contents()['channels'][0].split(".")
+                nombre =  lista[0] +"."+lista[1]
+                if(wave.count(nombre)):
+                    archivos.remove(wave)
     waveforms = []
     for element in archivos:
         waveforms.append(read(element))
     return waveforms
-    # except:
-    # print("AAAAAAAAAAA")
 
 
 # intentamos cargar el directorio de las estaciones, si falla se muestra un
@@ -135,7 +126,6 @@ def cargar_stations(directorio,ceseve,ruta_info):
     ceseve= ceseve[ceseve["id_evento"] == archivos[0]]
     time = UTCDateTime(str(ceseve["fecha_evento"].values[0])+"T"+ceseve["tiempo_cmt"].values[0])
     for resp in XML:
-        # print(resp)
         inv = read_inventory(resp)
         bandera = True
         i = 0
@@ -152,8 +142,12 @@ def cargar_stations(directorio,ceseve,ruta_info):
     return estaciones, bulk,fallas
 
 def cargar_sintetico(ruta_wave):
-    os.chdir(directorio)
-    archivos = sorted(os.listdir(directorio))
+    os.chdir(ruta_wave)
+    archivos = sorted(os.listdir(ruta_wave))
+    try:
+        archivos.remove('info.txt')
+    except:
+        pass
     sintetico =[]
     for element in archivos:
         sintetico.append(read(element))
@@ -169,8 +163,7 @@ def remover_respuesta(st,inv,pre_filt,output_1):
         wave.detrend("constant")
         wave.detrend("linear")
         stream.append(wave)
-    return stream #,unidad
-
+    return stream 
 # remmovemos el periodo P a los simogramas
 def filtro(tipo, st,freq_):
     corners = 2
@@ -179,9 +172,7 @@ def filtro(tipo, st,freq_):
         for element in st:
             element = element.filter('lowpass', freq=freq_, corners=2, zerophase=True)
             stream.append(element)
-        # st = st.filter('lowpass', freq=freq_, corners=2, zerophase=True)
     elif(tipo == "highpass"):
-        # st =  st.filter('highpass', freq=freq_, corners=2, zerophase=True)
         for element in st:
             element = element.filter('highpass', freq=freq_, corners=2, zerophase=True)
             stream.append(element)
@@ -189,7 +180,6 @@ def filtro(tipo, st,freq_):
         for element in st:
             element =  element.filter('bandpass', freqmin=freq_[0],freqmax=freq_[1], corners=2, zerophase=True)
             stream.append(element)
-        # st =  st.filter('bandpass', freqmin=freq_[0],freqmax=freq_[1], corners=2, zerophase=True)
     return stream 
 
 def generar_sintetico(ruta_info,ceseve,bulk,output,start,end):
@@ -201,9 +191,7 @@ def generar_sintetico(ruta_info,ceseve,bulk,output,start,end):
     ceseve= ceseve[ceseve["id_evento"] == archivos[0]]
     client = Client()
     codigo = archivos[0]
-    # print(codigo)
     codigo = "GCMT:" + codigo[1:]
-    print(codigo)
     if(output == "VEL"):
         output = 'velocity'
     elif(output == "DISP"):
@@ -216,12 +204,8 @@ def generar_sintetico(ruta_info,ceseve,bulk,output,start,end):
     return sint_teo,parametros
 
 def mapa(estaciones,ceseve,ruta_info):
-
     # creamos el mapa
     m = folium.Map(tiles='Stamen Terrain', zoom_start=0.5, min_zoom=2)
-    # creamos el icono para identificar las estaciones
-    # fig_icono = folium.features.CustomIcon(icono, icon_size=(14, 14))
-
     # graficamos las estaciones
     for estacion in estaciones:
         lista = estacion.get_contents()['channels'][0].split(".")
@@ -247,46 +231,9 @@ def mapa(estaciones,ceseve,ruta_info):
     m.save('index.html')
     webbrowser.open("index.html")
 
-
-
-# funcion que carga el mapa que se abre en navegador usando las librerias
-# folium y branca
-# def mapa(estaciones,ceseve,ruta_info):
-#     # creamos el mapa
-#     m = folium.Map(tiles='Stamen Terrain', zoom_start=0.5, min_zoom=2)
-#     # creamos el icono para identificar las estaciones
-#     # fig_icono = folium.features.CustomIcon(icono, icon_size=(14, 14))
-
-#     # graficamos las estaciones
-#     for estacion in estaciones:
-#         lista = estacion.get_contents()['channels'][0].split(".")
-#         nombre =  lista[0] +"."+lista[1]
-#         latitud = estacion[0][0].__dict__["_latitude"]
-#         longitud = estacion[0][0].__dict__["_longitude"]
-#         folium.Marker(location=[latitud, longitud],
-#                       popup=nombre).add_to(m)#nombre
-#         m.add_child(folium.LatLngPopup())
-
-#     # cargamos la informacion del terremoto
-#     directorio = ruta_info + "/info.txt"
-#     archivo =  open(directorio)
-#     archivos = []
-#     for element in archivo:
-#         archivos.append(element.strip())
-#     ceseve= ceseve[ceseve["id_evento"] == archivos[0]]
-#     lon_e = ceseve["lon_cmt"].values[0]
-#     lat_e = ceseve["lat_cmt"].values[0]
-#     folium.Marker(location=[lat_e, lon_e], popup='Lugar Evento',
-#                   icon=folium.Icon(color='red', icon='info-sign')).add_to(m)
-#     os.chdir(ruta_info)
-#     m.save('index.html')
-#     webbrowser.open("index.html")
-
 def guardar_trabajo_sintetico(streams,nombre,ruta_principal,ruta_guardar):
     nombre = nombre.replace(ruta_principal.replace("\\","/")+"/datos/","")
-    # print(ruta_guardar)
     os.chdir(ruta_guardar)
-
     i = 0
     for stream in streams:
         nuevo= nombre+str(i)+ ".mseed"
@@ -295,7 +242,6 @@ def guardar_trabajo_sintetico(streams,nombre,ruta_principal,ruta_guardar):
 
 
 def guardar_trabajo(streams,nombre,ruta_principal,ruta_guardar):
-
     nombre = nombre.replace(ruta_principal.replace("\\","/")+"/datos/","")
     os.chdir(ruta_guardar)
     i = 0

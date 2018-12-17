@@ -42,7 +42,6 @@ class DescargaDatos(QtGui.QDialog):
     # a los metodos
 
     def __init__(self):
-
         super(DescargaDatos, self).__init__()
         os.chdir(ruta_principal)
         self.ui = loadUi('interfaz/descarga_datos.ui', self)
@@ -115,35 +114,12 @@ class DescargaDatos(QtGui.QDialog):
             self.a_mostrar.append(i)
             self.ui.descargar_listWidget.addItem(string)
         self.ui.descargar_listWidget.currentItemChanged.connect(self.print_info)
-        # clickeado = self.ui.descargar_listWidget.itemClicked.connect(self.ui.descargar_listWidget.listClicked)
-        # print(clickeado)
 
 
-# Ventana de dialogo para seleccionar el evento que queremos graficar
-class SeleccionarDatos(QtGui.QDialog):
-
-    # cargamos lista de datos, cargados en el programa, para luego ser
-    # retornado el indice escogido, para ser graficado en la interfaz
-    # principal del programa
-    def __init__(self, waveforms):
-        super(SeleccionarDatos, self).__init__()
-        self.ui = loadUi('interfaz/seleccionar.ui', self)
-        self.waveforms = waveforms
-        for element in self.waveforms:
-            string = element[0].__dict__["stats"].network + \
-                " " + element[0].__dict__["stats"].station
-            self.ui.indice_listWidget.addItem(string)
-        self.seleccionar_Button.clicked.connect(self.print_info)
-
-    # funcion que retona el numero seleccionado, en la lista
-    def print_info(self):
-        self.numero = self.ui.indice_listWidget.row(
-            self.ui.indice_listWidget.currentItem())
-        self.done(self.numero)
-
-
-
-
+# clase que realiza los checks necesarios para llamar al metodo
+# remover_respuesta, si existen archivos cargados, nos permite llamar a
+# la funcion, de otra manera, nos indicara que debemos cargar los
+# archivos
 class RemoverRespuesta(QtGui.QDialog):
 
     def __init__(self,wavefoms,stations):
@@ -222,8 +198,6 @@ class MainWindow(QtGui.QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.ui = loadUi('interfaz/main_windows.ui', self)
-        # self.m = PlotCanvas(self, width=5, height=4)
-        # self.m.setGeometry(QtCore.QRect(60, 50, 501, 471))
         self.descargar_Button.clicked.connect(self.executeDescargaDatos)
         self.graficar_Button.clicked.connect(self.graficar)
         self.remover_respuesta_Button.clicked.connect(self.executeRemoverRespuesta)
@@ -237,9 +211,9 @@ class MainWindow(QtGui.QMainWindow):
         self.cargar_waveforms_Button.clicked.connect(self.cargar_waveforms)
         self.cargar_sintetico_Button.clicked.connect(self.cargar_sintetico)
         self.graficar_sintetico_Button.clicked.connect(self.graficar_sintetico)
-        # self.cargar_waveforms_Button.clicked.connect(self.graficar_basemap)
         self.waveforms = ""
         self.estaciones = ""
+        self.banderin_sintetico = False
 
 
 
@@ -248,8 +222,6 @@ class MainWindow(QtGui.QMainWindow):
             c=0 
             ruta = str(QtGui.QFileDialog.getExistingDirectory(self, "Seleccione directorio para guardar sismograma"))
             ruta = ruta +"/"
-            # ruta = self.file_estaciones+"/graficos_normales/"
-            # os.mkdir(ruta)
             os.chdir(ruta)
 
             for traza in self.waveforms:
@@ -260,10 +232,10 @@ class MainWindow(QtGui.QMainWindow):
                 plt.title('Formas de onda observadas estacion  ' +traza.id  )
                 ax.xaxis_date()
                 fig.autofmt_xdate()
-                print(ruta)
                 plt.savefig(ruta+traza.id+'.'+'{:04}'.format(c+1)+'.png')
                 plt.close()
                 c+=1
+            QtGui.QMessageBox.information(self, "Exito ", "Graficos generados correctamente")
         except:
             QtGui.QMessageBox.information(self, "Error ", "Algo inesperado ha sucedido")
 
@@ -275,17 +247,20 @@ class MainWindow(QtGui.QMainWindow):
             ruta = ruta +"/"
             os.chdir(ruta)
             for traza in self.sismograma_sintetico:
-                traza = traza
+                if (self.banderin_sintetico):
+                    traza = traza[0]
+                else:
+                    traza = traza
                 fig = plt.figure()
                 ax = fig.add_subplot(1, 1, 1)
                 ax.plot(traza.times('matplotlib'),traza.data , 'r' , label = 'sis obs')
                 plt.title('Formas de onda sinteticas estacion  ' +traza.id  )
                 ax.xaxis_date()
                 fig.autofmt_xdate()
-                print(ruta)
                 plt.savefig(ruta+traza.id+'.'+'{:04}'.format(c+1)+'.png')
                 plt.close()
                 c+=1
+            QtGui.QMessageBox.information(self, "Exito ", "Graficos generados correctamente")
         except:
             QtGui.QMessageBox.information(self, "Error ", "Algo inesperado ha sucedido")
 
@@ -294,39 +269,8 @@ class MainWindow(QtGui.QMainWindow):
         os.chdir(ruta_principal)
         descarga_datos_windows = DescargaDatos()
         descarga_datos_windows.exec_()
-        # pasar datos de un dialog a otro
-        # print(descarga_datos_windows.magnitud_edit.text())
 
-        # metodo que llama a un instancia de SeleccionarDatos, y muestra la
-        # pantalla, la ejecuccion del metodo exec_(), permite retonar valores
-        # de los dialogos
-    def executeSeleccionarDatos(self):
-        # try:
-        os.chdir(ruta_principal)
-        seleccionar_datos_windows = SeleccionarDatos(self.waveforms)
-        seleccionar_datos_windows.exec_()
-            # recibimos valor de qdialog
-        self.indice_array = seleccionar_datos_windows.numero
-        string = self.waveforms[self.indice_array][0].__dict__["stats"].network + \
-                " " + self.waveforms[self.indice_array][0].__dict__["stats"].station
-        # self.graficar(self.indice_array)
-        tr = self.waveforms[self.indice_array][0]
-        plt
-        ax = self.figure.add_subplot(111)
-        ax.plot(tr.times("matplotlib"), tr.data, "b-")
-        # ax.tittle(nombre)
-        ax.xaxis_date()
-        self.figure.autofmt_xdate()
-        self.draw()
-        plt.show()
-        QtGui.QMessageBox.information(self, "Exito ", "Graficado Correctamente")
-
-        # self.m.plot(self.waveforms[self.indice_array],string)
-        
-        # except:
-        #     QtGui.QMessageBox.information(
-        #         self, "Error ", "Error al intentar graficar los datos")
-
+      
     def executeRemoverRespuesta(self):
 
         try:
@@ -336,9 +280,9 @@ class MainWindow(QtGui.QMainWindow):
             self.waveforms = remover_respuesta_windows.waveforms
             self.output = remover_respuesta_windows.output
             if(len(self.waveforms)):
-                QtGui.QMessageBox.information(self, "Error ", "Algo inesperado ha sucedido")
-            else:
                 QtGui.QMessageBox.information(self, "Exito", "Operacion realizada correctamente")
+            else:
+                QtGui.QMessageBox.information(self, "Error ", "Algo inesperado ha sucedido")
         except:
             QtGui.QMessageBox.information(self, "Error ", "Algo inesperado ha sucedido")
 
@@ -365,6 +309,7 @@ class MainWindow(QtGui.QMainWindow):
             self.tiempo_inicio = sismograma_windows.sismograma_sintetico
             self.tiempo_termino = sismograma_windows.sismograma_sintetico
             QtGui.QMessageBox.information(self, "Exito", "Operacion realizada correctamente")
+            self.banderin_sintetico = False
         except:
             QtGui.QMessageBox.information(self, "Error ", "Debe ejecutar remover respuesta primero")
 
@@ -376,13 +321,11 @@ class MainWindow(QtGui.QMainWindow):
             QtGui.QMessageBox.information(self, "Exito ", "Datos guardados correctamente")     
         except:
             QtGui.QMessageBox.information(self, "Exito ", "Algo inesperado ha sucedido")
-            # print("sadfasdf")
 
     def  guardar_sintetico(self):
         ruta_guardar = str(QtGui.QFileDialog.getExistingDirectory(self, "Seleccione directorio para guardar sismograma"))
         try:
             f.guardar_trabajo_sintetico(self.sismograma_sintetico, self.file_estaciones,ruta_principal,ruta_guardar)
-            print(ruta_guardar)
             os.chdir(ruta_guardar)
             archivo = open("info.txt","w")
             for element in self.parametros_sinteticos:
@@ -407,8 +350,6 @@ class MainWindow(QtGui.QMainWindow):
         # metodo que llama a un instancia de DescargaDatos, y muestra la
         # pantalla, la ejecuccion del metodo exec_(), permite retonar valores
         # de los dialogos
-    
-
     def carga_datos(self):
         try:
             os.chdir(ruta_principal)
@@ -419,7 +360,6 @@ class MainWindow(QtGui.QMainWindow):
                 QtGui.QMessageBox.information(self, "Error ", "Algo inesperado ha sucedido")
             else:
                 QtGui.QMessageBox.information(self, "Exito", "Archivos cargados correctamente")
-
         except:
             QtGui.QMessageBox.information(self, "Error ", "Algo inesperado ha sucedido")
 
@@ -427,40 +367,24 @@ class MainWindow(QtGui.QMainWindow):
         os.chdir(ruta_principal)
         try:
             ruta_wave = str(QtGui.QFileDialog.getExistingDirectory(self, "Seleccione carpeta con waveforms modificados"))
-            # print(ruta_wave)
-            self.waveforms = cargar_waveforms(ruta_wave,self.fallas)
+            self.waveforms = f.cargar_waveforms(ruta_wave,self.fallas)
+            QtGui.QMessageBox.information(self, "Exito", "Archivos cargados correctamente")
         except:
             QtGui.QMessageBox.information(self, "Error ", "Algo inesperado ha sucedido")
 
 
     def cargar_sintetico(self):
+
         os.chdir(ruta_principal)
         try:
             ruta_wave = str(QtGui.QFileDialog.getExistingDirectory(self, "Seleccione carpeta con waveforms modificados"))
-            # print(ruta_wave)
-            self.waveforms = cargar_sintetico(ruta_wave)
+            self.sismograma_sintetico = f.cargar_sintetico(ruta_wave)
+            self.banderin_sintetico = True
+            QtGui.QMessageBox.information(self, "Exito", "Archivos cargados correctamente")
         except:
             QtGui.QMessageBox.information(self, "Error ", "Algo inesperado ha sucedido")
 
-
-        # funcion que realiza los checks necesarios para llamar al metodo
-        # remover_respuesta, si existen archivos cargados, nos permite llamar a
-        # la funcion, de otra manera, nos indicara que debemos cargar los
-        # archivos
-
-        # funcion que realiza los checks necesarios para llamar al metodo
-        # periodo_P, si existen archivos cargados, nos permite llamar a
-        # la funcion, de otra manera, nos indicara que debemos cargar los
-        # archivos
-
-        # funcion que realiza los checks necesarios para llamar al metodo
-        # graficar, si existen archivos cargados, nos permite llamar a
-        # la funcion y se actualiza el grafico, de otra manera, nos indicara que debemos cargar los
-        # archivos
-
-
     def graficar_mapa(self):
-        # ruta = os.getcwd() + "/interfaz/estaciones.png"
         try:
             f.mapa(self.estaciones,soluciones_cmt,self.file_estaciones)
         except:
